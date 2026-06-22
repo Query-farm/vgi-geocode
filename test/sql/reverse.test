@@ -1,0 +1,93 @@
+# name: test/sql/reverse.test
+# description: Reverse geocoding -- country_code, timezone, nearest_city, reverse_geocode struct
+# group: [vgi_geocode]
+
+require-env VGI_GEOCODE_WORKER
+
+statement ok
+LOAD vgi;
+
+statement ok
+ATTACH 'geocode' AS geocode (TYPE vgi, LOCATION '${VGI_GEOCODE_WORKER}');
+
+# Country codes for known landmarks.
+query I
+SELECT geocode.country_code(40.7128, -74.0060);
+----
+US
+
+query I
+SELECT geocode.country_code(48.8566, 2.3522);
+----
+FR
+
+query I
+SELECT geocode.country_code(35.6762, 139.6503);
+----
+JP
+
+# Timezone (IANA name).
+query I
+SELECT geocode.timezone(40.7128, -74.0060);
+----
+America/New_York
+
+query I
+SELECT geocode.timezone(35.6762, 139.6503);
+----
+Asia/Tokyo
+
+# Nearest city contains the expected substring.
+query I
+SELECT geocode.nearest_city(40.7128, -74.0060) LIKE '%York%';
+----
+true
+
+# reverse_geocode(...).city struct-field access.
+query I
+SELECT geocode.reverse_geocode(48.8566, 2.3522).city;
+----
+Paris
+
+query I
+SELECT geocode.reverse_geocode(48.8566, 2.3522).country_code;
+----
+FR
+
+# NULL input -> NULL output.
+query I
+SELECT geocode.country_code(NULL, NULL) IS NULL;
+----
+true
+
+# Out-of-range latitude (|lat| > 90) -> NULL.
+query I
+SELECT geocode.country_code(91.0, 0.0) IS NULL;
+----
+true
+
+# Out-of-range longitude (|lon| > 180) -> NULL.
+query I
+SELECT geocode.timezone(0.0, 181.0) IS NULL;
+----
+true
+
+# Whole struct is NULL for out-of-range input.
+query I
+SELECT geocode.reverse_geocode(95.0, 0.0) IS NULL;
+----
+true
+
+# Per-row use over a small VALUES table.
+query II rowsort
+SELECT label, geocode.country_code(lat, lon)
+FROM (VALUES ('ny', 40.7128, -74.0060),
+             ('paris', 48.8566, 2.3522),
+             ('tokyo', 35.6762, 139.6503)) AS t(label, lat, lon);
+----
+ny	US
+paris	FR
+tokyo	JP
+
+statement ok
+DETACH geocode;

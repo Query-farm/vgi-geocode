@@ -1,0 +1,39 @@
+# name: test/sql/distance.test
+# description: Haversine distance_km -- value within tolerance, NULL / out-of-range handling
+# group: [vgi_geocode]
+
+require-env VGI_GEOCODE_WORKER
+
+statement ok
+LOAD vgi;
+
+statement ok
+ATTACH 'geocode' AS geocode (TYPE vgi, LOCATION '${VGI_GEOCODE_WORKER}');
+
+# New York -> London is ~5570 km. Round to the nearest 10 km for a stable check.
+query I
+SELECT ROUND(geocode.distance_km(40.7128, -74.0060, 51.5074, -0.1278) / 10.0) * 10
+       BETWEEN 5500 AND 5640;
+----
+true
+
+# Zero distance.
+query I
+SELECT ROUND(geocode.distance_km(10.0, 20.0, 10.0, 20.0));
+----
+0
+
+# NULL input -> NULL output.
+query I
+SELECT geocode.distance_km(NULL, 0.0, 0.0, 0.0) IS NULL;
+----
+true
+
+# Out-of-range coordinate -> NULL.
+query I
+SELECT geocode.distance_km(0.0, 0.0, 0.0, 181.0) IS NULL;
+----
+true
+
+statement ok
+DETACH geocode;
