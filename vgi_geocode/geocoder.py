@@ -15,6 +15,7 @@ which is documented behaviour.
 
 from __future__ import annotations
 
+import contextlib
 import math
 import threading
 from typing import Any, NamedTuple
@@ -83,14 +84,10 @@ def _get_tf() -> Any:
 
 def warm_up() -> None:
     """Build both spatial indexes ahead of time. Best-effort; never fatal."""
-    try:
+    with contextlib.suppress(Exception):
         _get_rg()
-    except Exception:
-        pass
-    try:
+    with contextlib.suppress(Exception):
         _get_tf()
-    except Exception:
-        pass
 
 
 # ---------------------------------------------------------------------------

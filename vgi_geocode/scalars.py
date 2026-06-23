@@ -83,6 +83,8 @@ class NearestCityFunction(ScalarFunction):
     """``nearest_city(lat, lon)`` -- name of the nearest known city."""
 
     class Meta:
+        """Function metadata."""
+
         name = "nearest_city"
         description = "Name of the nearest known city to (lat, lon); NULL if out of range"
         categories = ["geocode", "reverse"]
@@ -100,6 +102,7 @@ class NearestCityFunction(ScalarFunction):
         lat: Annotated[pa.DoubleArray, Param(doc=_LAT_DOC)],
         lon: Annotated[pa.DoubleArray, Param(doc=_LON_DOC)],
     ) -> Annotated[pa.StringArray, Returns()]:
+        """Map each input row to its output value."""
         places = geocoder.reverse_geocode_batch(list(zip(lat.to_pylist(), lon.to_pylist(), strict=True)))
         return pa.array(
             [(p.city or None) if p is not None else None for p in places],
@@ -111,6 +114,8 @@ class CountryCodeFunction(ScalarFunction):
     """``country_code(lat, lon)`` -- ISO-3166 alpha-2 country code."""
 
     class Meta:
+        """Function metadata."""
+
         name = "country_code"
         description = "ISO-3166 alpha-2 country code of the nearest place; NULL if out of range"
         categories = ["geocode", "reverse"]
@@ -128,6 +133,7 @@ class CountryCodeFunction(ScalarFunction):
         lat: Annotated[pa.DoubleArray, Param(doc=_LAT_DOC)],
         lon: Annotated[pa.DoubleArray, Param(doc=_LON_DOC)],
     ) -> Annotated[pa.StringArray, Returns()]:
+        """Map each input row to its output value."""
         places = geocoder.reverse_geocode_batch(list(zip(lat.to_pylist(), lon.to_pylist(), strict=True)))
         return pa.array(
             [(p.country_code or None) if p is not None else None for p in places],
@@ -139,6 +145,8 @@ class Admin1Function(ScalarFunction):
     """``admin1(lat, lon)`` -- first-level admin region (state / region)."""
 
     class Meta:
+        """Function metadata."""
+
         name = "admin1"
         description = "First-level admin region (state / region) of the nearest place; NULL if out of range"
         categories = ["geocode", "reverse"]
@@ -156,6 +164,7 @@ class Admin1Function(ScalarFunction):
         lat: Annotated[pa.DoubleArray, Param(doc=_LAT_DOC)],
         lon: Annotated[pa.DoubleArray, Param(doc=_LON_DOC)],
     ) -> Annotated[pa.StringArray, Returns()]:
+        """Map each input row to its output value."""
         places = geocoder.reverse_geocode_batch(list(zip(lat.to_pylist(), lon.to_pylist(), strict=True)))
         return pa.array(
             [(p.admin1 or None) if p is not None else None for p in places],
@@ -167,6 +176,8 @@ class Admin2Function(ScalarFunction):
     """``admin2(lat, lon)`` -- second-level admin region (county / district)."""
 
     class Meta:
+        """Function metadata."""
+
         name = "admin2"
         description = "Second-level admin region (county/district) of the nearest place; NULL if out of range"
         categories = ["geocode", "reverse"]
@@ -184,6 +195,7 @@ class Admin2Function(ScalarFunction):
         lat: Annotated[pa.DoubleArray, Param(doc=_LAT_DOC)],
         lon: Annotated[pa.DoubleArray, Param(doc=_LON_DOC)],
     ) -> Annotated[pa.StringArray, Returns()]:
+        """Map each input row to its output value."""
         places = geocoder.reverse_geocode_batch(list(zip(lat.to_pylist(), lon.to_pylist(), strict=True)))
         return pa.array(
             [(p.admin2 or None) if p is not None else None for p in places],
@@ -200,10 +212,11 @@ class ReverseGeocodeFunction(ScalarFunction):
     """``reverse_geocode(lat, lon)`` -- full nearest-place STRUCT record."""
 
     class Meta:
+        """Function metadata."""
+
         name = "reverse_geocode"
         description = (
-            "Nearest place as STRUCT(city, admin1, admin2, country_code, place_lat, place_lon); "
-            "NULL if out of range"
+            "Nearest place as STRUCT(city, admin1, admin2, country_code, place_lat, place_lon); NULL if out of range"
         )
         categories = ["geocode", "reverse"]
         null_handling = NullHandling.SPECIAL
@@ -220,6 +233,7 @@ class ReverseGeocodeFunction(ScalarFunction):
 
     @classmethod
     def on_bind(cls, params: BindParameters) -> BindResult:
+        """Declare the STRUCT output type at plan time."""
         return BindResult(_REVERSE_TYPE)
 
     @classmethod
@@ -228,6 +242,7 @@ class ReverseGeocodeFunction(ScalarFunction):
         lat: Annotated[pa.DoubleArray, Param(doc=_LAT_DOC)],
         lon: Annotated[pa.DoubleArray, Param(doc=_LON_DOC)],
     ) -> Annotated[pa.StructArray, Returns(arrow_type=_REVERSE_TYPE)]:
+        """Map each input row to its output value."""
         places = geocoder.reverse_geocode_batch(list(zip(lat.to_pylist(), lon.to_pylist(), strict=True)))
         return pa.array([_place_to_dict(p) for p in places], type=_REVERSE_TYPE)
 
@@ -241,6 +256,8 @@ class TimezoneFunction(ScalarFunction):
     """``timezone(lat, lon)`` -- IANA timezone name."""
 
     class Meta:
+        """Function metadata."""
+
         name = "timezone"
         description = "IANA timezone name (e.g. 'America/New_York') for (lat, lon); NULL if out of range"
         categories = ["geocode", "timezone"]
@@ -258,6 +275,7 @@ class TimezoneFunction(ScalarFunction):
         lat: Annotated[pa.DoubleArray, Param(doc=_LAT_DOC)],
         lon: Annotated[pa.DoubleArray, Param(doc=_LON_DOC)],
     ) -> Annotated[pa.StringArray, Returns()]:
+        """Map each input row to its output value."""
         lats = lat.to_pylist()
         lons = lon.to_pylist()
         return pa.array(
@@ -275,6 +293,8 @@ class DistanceKmFunction(ScalarFunction):
     """``distance_km(lat1, lon1, lat2, lon2)`` -- great-circle distance (km)."""
 
     class Meta:
+        """Function metadata."""
+
         name = "distance_km"
         description = "Great-circle (haversine) distance in km between two points; NULL if out of range"
         categories = ["geocode", "distance"]
@@ -294,6 +314,7 @@ class DistanceKmFunction(ScalarFunction):
         lat2: Annotated[pa.DoubleArray, Param(doc="Latitude of point 2 (-90..90).")],
         lon2: Annotated[pa.DoubleArray, Param(doc="Longitude of point 2 (-180..180).")],
     ) -> Annotated[pa.DoubleArray, Returns()]:
+        """Map each input row to its output value."""
         a, b, c, d = lat1.to_pylist(), lon1.to_pylist(), lat2.to_pylist(), lon2.to_pylist()
         return pa.array(
             [geocoder.distance_km(*row) for row in zip(a, b, c, d, strict=True)],
