@@ -1,16 +1,13 @@
 # /// script
 # requires-python = ">=3.13"
 # dependencies = [
-#     "vgi-python",
+#     "vgi-python>=0.8.3",
 #     "reverse_geocoder>=1.5",
 #     "timezonefinder>=6",
 #     "numpy",
 #     "scipy",
 #     "pyarrow",
 # ]
-#
-# [tool.uv.sources]
-# vgi-python = { path = "../vgi-python" }
 # ///
 """VGI worker exposing OFFLINE reverse geocoding to DuckDB/SQL.
 
