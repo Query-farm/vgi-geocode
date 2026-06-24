@@ -82,14 +82,31 @@ _SCHEMA_DESCRIPTION_MD = (
     "`country_code`, `admin1`, `admin2`, `reverse_geocode`, `timezone`, `distance_km`."
 )
 
+_SCHEMA_EXAMPLE_QUERIES = (
+    "SELECT geocode.main.nearest_city(40.7128, -74.0060);\n"
+    "SELECT geocode.main.country_code(48.8566, 2.3522);\n"
+    "SELECT geocode.main.admin1(35.6762, 139.6503);\n"
+    "SELECT geocode.main.admin2(34.0522, -118.2437);\n"
+    "SELECT geocode.main.reverse_geocode(40.7128, -74.0060);\n"
+    "SELECT geocode.main.timezone(40.7128, -74.0060);\n"
+    "SELECT geocode.main.distance_km(40.7128, -74.0060, 51.5074, -0.1278);"
+)
+
+
 _GEOCODE_CATALOG = Catalog(
     name="geocode",
     default_schema="main",
     comment="Offline reverse geocoding: lat/lon -> place, country, admin regions, timezone, plus haversine distance",
     source_url=_REPO_URL,
     tags={
-        "vgi.description_llm": _CATALOG_DESCRIPTION_LLM,
-        "vgi.description_md": _CATALOG_DESCRIPTION_MD,
+        "vgi.title": "Offline Reverse Geocoding",
+        "vgi.keywords": (
+            "geocode, reverse geocode, geocoding, lat lon, latitude longitude, "
+            "coordinates, city, country, country code, state, region, county, admin, "
+            "timezone, iana timezone, haversine, distance, offline, geonames"
+        ),
+        "vgi.doc_llm": _CATALOG_DESCRIPTION_LLM,
+        "vgi.doc_md": _CATALOG_DESCRIPTION_MD,
         "vgi.author": "Query.Farm",
         "vgi.copyright": "Copyright 2026 Query Farm LLC - https://query.farm",
         "vgi.license": "MIT",
@@ -101,8 +118,21 @@ _GEOCODE_CATALOG = Catalog(
             name="main",
             comment="Offline reverse geocoding: lat/lon -> place, country, admin regions, timezone",
             tags={
-                "vgi.description_llm": _SCHEMA_DESCRIPTION_LLM,
-                "vgi.description_md": _SCHEMA_DESCRIPTION_MD,
+                "vgi.title": "Geocode - main",
+                "vgi.keywords": (
+                    "geocode, reverse geocode, nearest_city, country_code, admin1, "
+                    "admin2, reverse_geocode, timezone, distance_km, lat lon, "
+                    "coordinates, offline, geonames"
+                ),
+                "vgi.source_url": f"{_REPO_URL}/blob/main/geocode_worker.py",
+                # VGI123 classifying tags (BARE keys: domain/category/topic).
+                "domain": "geospatial",
+                "category": "geocoding",
+                "topic": "reverse-geocoding",
+                "vgi.doc_llm": _SCHEMA_DESCRIPTION_LLM,
+                "vgi.doc_md": _SCHEMA_DESCRIPTION_MD,
+                # VGI506 representative example queries for the schema.
+                "vgi.example_queries": _SCHEMA_EXAMPLE_QUERIES,
             },
             functions=list(SCALAR_FUNCTIONS),
         ),
