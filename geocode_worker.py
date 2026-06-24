@@ -1,7 +1,7 @@
 # /// script
 # requires-python = ">=3.13"
 # dependencies = [
-#     "vgi-python>=0.8.3",
+#     "vgi-python[http]>=0.8.3",
 #     "reverse_geocoder>=1.5",
 #     "timezonefinder>=6",
 #     "numpy",
