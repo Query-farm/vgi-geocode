@@ -1,7 +1,7 @@
 # /// script
 # requires-python = ">=3.13"
 # dependencies = [
-#     "vgi-python[http]>=0.8.3",
+#     "vgi-python[http]>=0.8.4",
 #     "reverse_geocoder>=1.5",
 #     "timezonefinder>=6",
 #     "numpy",
@@ -45,13 +45,65 @@ from vgi.catalog import Catalog, Schema
 from vgi_geocode import geocoder
 from vgi_geocode.scalars import SCALAR_FUNCTIONS
 
+_REPO_URL = "https://github.com/Query-farm/vgi-geocode"
+
+_CATALOG_DESCRIPTION_LLM = (
+    "Offline reverse geocoding for SQL: turn a latitude/longitude into the nearest "
+    "known place (city), its ISO-3166 country code, first- and second-level admin "
+    "regions (state/region, county/district), and IANA timezone -- entirely offline "
+    "with no API keys or network. Also computes great-circle (haversine) distance in "
+    "kilometers between two points. Backed by the GeoNames cities KD-tree "
+    "(reverse_geocoder) and offline IANA timezone polygons (timezonefinder). Use to "
+    "enrich coordinate columns with place names, countries, regions and timezones, or "
+    "to measure distances, directly in DuckDB."
+)
+
+_CATALOG_DESCRIPTION_MD = (
+    "# geocode\n\n"
+    "Offline reverse geocoding and great-circle distance over Apache Arrow -- no API "
+    "keys, no network.\n\n"
+    "Turns `(lat, lon)` into the nearest place, country, admin regions and timezone, "
+    "and measures haversine distance between two points.\n\n"
+    "Scalars: `nearest_city`, `country_code`, `admin1`, `admin2`, `reverse_geocode` "
+    "(full STRUCT), `timezone`, `distance_km`.\n\n"
+    "Backed by GeoNames cities (`reverse_geocoder`, LGPL-3.0) and offline IANA "
+    "timezone polygons (`timezonefinder`, MIT)."
+)
+
+_SCHEMA_DESCRIPTION_LLM = (
+    "Per-row scalar geocoding functions: nearest_city, country_code, admin1, admin2, "
+    "reverse_geocode (full STRUCT of city/admin/country/place coordinates), timezone, "
+    "and distance_km (haversine). All take coordinates positionally and return NULL "
+    "for NULL or out-of-range inputs."
+)
+
+_SCHEMA_DESCRIPTION_MD = (
+    "Per-row offline reverse-geocoding scalars over Apache Arrow: `nearest_city`, "
+    "`country_code`, `admin1`, `admin2`, `reverse_geocode`, `timezone`, `distance_km`."
+)
+
 _GEOCODE_CATALOG = Catalog(
     name="geocode",
     default_schema="main",
+    comment="Offline reverse geocoding: lat/lon -> place, country, admin regions, timezone, plus haversine distance",
+    source_url=_REPO_URL,
+    tags={
+        "vgi.description_llm": _CATALOG_DESCRIPTION_LLM,
+        "vgi.description_md": _CATALOG_DESCRIPTION_MD,
+        "vgi.author": "Query.Farm",
+        "vgi.copyright": "Copyright 2026 Query Farm LLC - https://query.farm",
+        "vgi.license": "MIT",
+        "vgi.support_contact": f"{_REPO_URL}/issues",
+        "vgi.support_policy_url": f"{_REPO_URL}/blob/main/README.md",
+    },
     schemas=[
         Schema(
             name="main",
             comment="Offline reverse geocoding: lat/lon -> place, country, admin regions, timezone",
+            tags={
+                "vgi.description_llm": _SCHEMA_DESCRIPTION_LLM,
+                "vgi.description_md": _SCHEMA_DESCRIPTION_MD,
+            },
             functions=list(SCALAR_FUNCTIONS),
         ),
     ],
