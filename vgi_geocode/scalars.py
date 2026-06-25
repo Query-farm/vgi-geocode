@@ -31,6 +31,7 @@ struct type is declared once as ``_REVERSE_TYPE`` and reused in both the
 
 from __future__ import annotations
 
+import json
 from typing import Annotated
 
 import pyarrow as pa
@@ -43,41 +44,45 @@ from .geocoder import Place
 from .schema_utils import field
 
 # ---------------------------------------------------------------------------
-# Per-object discovery/description tags (vgi-lint strict profile, 0.26.0).
+# Per-object discovery/description tags (vgi-lint strict profile).
 #
-# Every function surfaces, via its ``Meta.tags`` dict, the five tags the strict
-# profile gates on:
+# Every function surfaces, via its ``Meta.tags`` dict, the discovery/description
+# tags the strict profile gates on:
 #   - ``vgi.title`` (VGI124)      human-friendly display name (must not
 #                                 normalize-equal the machine name -> VGI125)
 #   - ``vgi.doc_llm`` (VGI112)    Markdown narrative aimed at LLMs/agents
 #   - ``vgi.doc_md`` (VGI113)     Markdown narrative for human docs (DISTINCT
 #                                 from doc_llm -- identical values are flagged)
-#   - ``vgi.keywords`` (VGI126)   comma-separated search terms/synonyms
-#   - ``vgi.source_url`` (VGI128) link to the implementing source file
+#   - ``vgi.keywords`` (VGI138)   JSON array of search-term/synonym strings
+#
+# ``vgi.source_url`` is intentionally NOT set per object (VGI139): the source
+# link belongs only on the catalog object, so it is declared once there.
 # ---------------------------------------------------------------------------
-
-_SOURCE_BASE = "https://github.com/Query-farm/vgi-geocode/blob/main"
-
-
-def _source_url(relative_path: str) -> str:
-    """Canonical GitHub blob URL for a source file in this repo."""
-    return f"{_SOURCE_BASE}/{relative_path}"
 
 
 def _object_tags(
     title: str,
     doc_llm: str,
     doc_md: str,
-    keywords: str,
-    relative_path: str = "vgi_geocode/scalars.py",
+    keywords: list[str],
 ) -> dict[str, str]:
-    """Build the five standard per-object discovery/description tags."""
+    """Build the standard per-object discovery/description tags.
+
+    Args:
+        title: Human-friendly display name for the function (VGI124).
+        doc_llm: Markdown narrative aimed at LLMs/agents (VGI112).
+        doc_md: Markdown narrative for human documentation (VGI113).
+        keywords: Search terms/synonyms; serialized to a JSON array of strings
+            for ``vgi.keywords`` as required by VGI138.
+
+    Returns:
+        The tag dictionary to assign to the function's ``Meta.tags``.
+    """
     return {
         "vgi.title": title,
         "vgi.doc_llm": doc_llm,
         "vgi.doc_md": doc_md,
-        "vgi.keywords": keywords,
-        "vgi.source_url": _source_url(relative_path),
+        "vgi.keywords": json.dumps(keywords),
     }
 
 
@@ -186,8 +191,18 @@ class NearestCityFunction(ScalarFunction):
                 "## Notes\n\n"
                 "Returns `NULL` for `NULL` or out-of-range inputs. Ocean points resolve to "
                 "the nearest land city; labels follow the bundled GeoNames snapshot.",
-                "nearest city, reverse geocode, city name, place name, locality, town, "
-                "geocoding, lat lon to city, coordinates to city, geonames",
+                [
+                    "nearest city",
+                    "reverse geocode",
+                    "city name",
+                    "place name",
+                    "locality",
+                    "town",
+                    "geocoding",
+                    "lat lon to city",
+                    "coordinates to city",
+                    "geonames",
+                ],
             ),
             # VGI509: at least one object ships guaranteed-runnable examples.
             "vgi.executable_examples": _EXECUTABLE_EXAMPLES,
@@ -249,8 +264,18 @@ class CountryCodeFunction(ScalarFunction):
             "## Notes\n\n"
             "Two-letter uppercase code. Returns `NULL` for `NULL`/out-of-range inputs; "
             "offshore points map to the nearest coastal country.",
-            "country code, iso 3166, iso country, alpha-2, country, nationality, "
-            "reverse geocode, lat lon to country, coordinates to country, geonames",
+            [
+                "country code",
+                "iso 3166",
+                "iso country",
+                "alpha-2",
+                "country",
+                "nationality",
+                "reverse geocode",
+                "lat lon to country",
+                "coordinates to country",
+                "geonames",
+            ],
         )
 
     @classmethod
@@ -309,8 +334,18 @@ class Admin1Function(ScalarFunction):
             "## Notes\n\n"
             "GeoNames admin1 label. Returns `NULL` for `NULL`/out-of-range inputs; "
             "spelling can drift between bundled snapshots.",
-            "admin1, state, province, region, first-level admin, administrative region, "
-            "reverse geocode, lat lon to state, coordinates to region, geonames",
+            [
+                "admin1",
+                "state",
+                "province",
+                "region",
+                "first-level admin",
+                "administrative region",
+                "reverse geocode",
+                "lat lon to state",
+                "coordinates to region",
+                "geonames",
+            ],
         )
 
     @classmethod
@@ -368,8 +403,18 @@ class Admin2Function(ScalarFunction):
             "## Notes\n\n"
             "Often `NULL` -- admin2 coverage in GeoNames is sparse outside a few "
             "countries. Also `NULL` for `NULL`/out-of-range inputs.",
-            "admin2, county, district, borough, second-level admin, administrative "
-            "region, reverse geocode, lat lon to county, coordinates to district, geonames",
+            [
+                "admin2",
+                "county",
+                "district",
+                "borough",
+                "second-level admin",
+                "administrative region",
+                "reverse geocode",
+                "lat lon to county",
+                "coordinates to district",
+                "geonames",
+            ],
         )
 
     @classmethod
@@ -449,8 +494,18 @@ class ReverseGeocodeFunction(ScalarFunction):
             "```\n\n"
             "## Notes\n\n"
             "Whole struct is `NULL` for `NULL`/out-of-range inputs; `admin2` is often `NULL`.",
-            "reverse geocode, struct, full record, place, city admin country, geocoding, "
-            "lat lon to place, coordinates to address, geonames, point lookup",
+            [
+                "reverse geocode",
+                "struct",
+                "full record",
+                "place",
+                "city admin country",
+                "geocoding",
+                "lat lon to place",
+                "coordinates to address",
+                "geonames",
+                "point lookup",
+            ],
         )
 
     @classmethod
@@ -518,8 +573,18 @@ class TimezoneFunction(ScalarFunction):
             "## Notes\n\n"
             "Polygon-accurate. Returns `NULL` outside all tz polygons and for "
             "`NULL`/out-of-range inputs; some ocean cells map to `Etc/GMT±N`.",
-            "timezone, iana timezone, tz, time zone, olson, lat lon to timezone, "
-            "coordinates to timezone, timezonefinder, local time, utc offset",
+            [
+                "timezone",
+                "iana timezone",
+                "tz",
+                "time zone",
+                "olson",
+                "lat lon to timezone",
+                "coordinates to timezone",
+                "timezonefinder",
+                "local time",
+                "utc offset",
+            ],
         )
 
     @classmethod
@@ -585,8 +650,20 @@ class DistanceKmFunction(ScalarFunction):
             "## Notes\n\n"
             "Spherical approximation (~6371 km radius), sub-percent error vs. WGS-84. "
             "Returns `NULL` if any coordinate is `NULL`/out of range.",
-            "distance, haversine, great circle, great-circle, km, kilometers, proximity, "
-            "nearby, radius, between two points, lat lon distance, geodistance",
+            [
+                "distance",
+                "haversine",
+                "great circle",
+                "great-circle",
+                "km",
+                "kilometers",
+                "proximity",
+                "nearby",
+                "radius",
+                "between two points",
+                "lat lon distance",
+                "geodistance",
+            ],
         )
 
     @classmethod

@@ -1,7 +1,7 @@
 # /// script
 # requires-python = ">=3.13"
 # dependencies = [
-#     "vgi-python[http]>=0.8.4",
+#     "vgi-python[http]>=0.8.5",
 #     "reverse_geocoder>=1.5",
 #     "timezonefinder>=6",
 #     "numpy",
@@ -37,6 +37,7 @@ Usage:
 
 from __future__ import annotations
 
+import json
 from typing import Any
 
 from vgi import Worker
@@ -79,7 +80,10 @@ _SCHEMA_DESCRIPTION_LLM = (
 
 _SCHEMA_DESCRIPTION_MD = (
     "Per-row offline reverse-geocoding scalars over Apache Arrow: `nearest_city`, "
-    "`country_code`, `admin1`, `admin2`, `reverse_geocode`, `timezone`, `distance_km`."
+    "`country_code`, `admin1`, `admin2`, `reverse_geocode` (full STRUCT), `timezone`, "
+    "and `distance_km` (haversine). All take coordinates positionally and return `NULL` "
+    "for `NULL` or out-of-range inputs, never an error. Backed by GeoNames cities and "
+    "offline IANA timezone polygons -- no API keys or network required."
 )
 
 _SCHEMA_EXAMPLE_QUERIES = (
@@ -100,10 +104,28 @@ _GEOCODE_CATALOG = Catalog(
     source_url=_REPO_URL,
     tags={
         "vgi.title": "Offline Reverse Geocoding",
-        "vgi.keywords": (
-            "geocode, reverse geocode, geocoding, lat lon, latitude longitude, "
-            "coordinates, city, country, country code, state, region, county, admin, "
-            "timezone, iana timezone, haversine, distance, offline, geonames"
+        "vgi.keywords": json.dumps(
+            [
+                "geocode",
+                "reverse geocode",
+                "geocoding",
+                "lat lon",
+                "latitude longitude",
+                "coordinates",
+                "city",
+                "country",
+                "country code",
+                "state",
+                "region",
+                "county",
+                "admin",
+                "timezone",
+                "iana timezone",
+                "haversine",
+                "distance",
+                "offline",
+                "geonames",
+            ]
         ),
         "vgi.doc_llm": _CATALOG_DESCRIPTION_LLM,
         "vgi.doc_md": _CATALOG_DESCRIPTION_MD,
@@ -119,12 +141,23 @@ _GEOCODE_CATALOG = Catalog(
             comment="Offline reverse geocoding: lat/lon -> place, country, admin regions, timezone",
             tags={
                 "vgi.title": "Geocode - main",
-                "vgi.keywords": (
-                    "geocode, reverse geocode, nearest_city, country_code, admin1, "
-                    "admin2, reverse_geocode, timezone, distance_km, lat lon, "
-                    "coordinates, offline, geonames"
+                "vgi.keywords": json.dumps(
+                    [
+                        "geocode",
+                        "reverse geocode",
+                        "nearest_city",
+                        "country_code",
+                        "admin1",
+                        "admin2",
+                        "reverse_geocode",
+                        "timezone",
+                        "distance_km",
+                        "lat lon",
+                        "coordinates",
+                        "offline",
+                        "geonames",
+                    ]
                 ),
-                "vgi.source_url": f"{_REPO_URL}/blob/main/geocode_worker.py",
                 # VGI123 classifying tags (BARE keys: domain/category/topic).
                 "domain": "geospatial",
                 "category": "geocoding",

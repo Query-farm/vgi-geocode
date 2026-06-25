@@ -170,3 +170,4 @@ jobs:
         with:
           location: "uv run --python 3.13 geocode_worker.py"
           fail-on: info
+          version: "0.37.0"
