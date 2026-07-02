@@ -65,6 +65,7 @@ def _object_tags(
     doc_llm: str,
     doc_md: str,
     keywords: list[str],
+    category: str,
 ) -> dict[str, str]:
     """Build the standard per-object discovery/description tags.
 
@@ -74,6 +75,9 @@ def _object_tags(
         doc_md: Markdown narrative for human documentation (VGI113).
         keywords: Search terms/synonyms; serialized to a JSON array of strings
             for ``vgi.keywords`` as required by VGI138.
+        category: Name of one of the schema's ``vgi.categories`` entries
+            (``reverse_geocoding`` / ``timezone`` / ``distance``), assigned to
+            ``vgi.category`` as required by VGI413.
 
     Returns:
         The tag dictionary to assign to the function's ``Meta.tags``.
@@ -83,6 +87,7 @@ def _object_tags(
         "vgi.doc_llm": doc_llm,
         "vgi.doc_md": doc_md,
         "vgi.keywords": json.dumps(keywords),
+        "vgi.category": category,
     }
 
 
@@ -203,6 +208,7 @@ class NearestCityFunction(ScalarFunction):
                     "coordinates to city",
                     "geonames",
                 ],
+                "reverse_geocoding",
             ),
             # VGI509: at least one object ships guaranteed-runnable examples.
             "vgi.executable_examples": _EXECUTABLE_EXAMPLES,
@@ -276,6 +282,7 @@ class CountryCodeFunction(ScalarFunction):
                 "coordinates to country",
                 "geonames",
             ],
+            "reverse_geocoding",
         )
 
     @classmethod
@@ -346,6 +353,7 @@ class Admin1Function(ScalarFunction):
                 "coordinates to region",
                 "geonames",
             ],
+            "reverse_geocoding",
         )
 
     @classmethod
@@ -415,6 +423,7 @@ class Admin2Function(ScalarFunction):
                 "coordinates to district",
                 "geonames",
             ],
+            "reverse_geocoding",
         )
 
     @classmethod
@@ -506,6 +515,7 @@ class ReverseGeocodeFunction(ScalarFunction):
                 "geonames",
                 "point lookup",
             ],
+            "reverse_geocoding",
         )
 
     @classmethod
@@ -585,6 +595,7 @@ class TimezoneFunction(ScalarFunction):
                 "local time",
                 "utc offset",
             ],
+            "timezone",
         )
 
     @classmethod
@@ -664,6 +675,7 @@ class DistanceKmFunction(ScalarFunction):
                 "lat lon distance",
                 "geodistance",
             ],
+            "distance",
         )
 
     @classmethod

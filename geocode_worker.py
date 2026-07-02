@@ -88,18 +88,19 @@ _CATALOG_DESCRIPTION_MD = (
     "function is total and NULL-safe: a NULL or out-of-range coordinate yields `NULL` "
     "rather than an error, so the functions are safe to drop into large batch "
     "queries.\n\n"
-    "The catalog exposes seven per-row scalar functions in the `main` schema. Use "
-    "`nearest_city(lat, lon)` for a place label, `country_code(lat, lon)` for the "
-    "ISO-3166 country, and `admin1(lat, lon)` / `admin2(lat, lon)` for state/region "
-    "and county/district. `reverse_geocode(lat, lon)` returns the full result as a "
-    "single `STRUCT` (city, admin1, admin2, country code, and the matched place "
-    "coordinates) so you can extract fields with `.city`, `.country_code`, and so on. "
-    "`timezone(lat, lon)` returns the IANA timezone name (e.g. `America/New_York`), "
-    "and `distance_km(lat1, lon1, lat2, lon2)` returns the great-circle distance in "
-    "kilometers between two points. For example, "
-    "`SELECT geocode.reverse_geocode(40.7128, -74.0060).city` resolves to "
-    "`New York City`, and `SELECT geocode.timezone(48.8566, 2.3522)` resolves to "
-    "`Europe/Paris`.\n\n"
+    "## What you can do\n\n"
+    "The worker groups its capabilities into three areas:\n\n"
+    "- **Place lookup** -- resolve a coordinate to the nearest city, its ISO-3166 "
+    "country, and first- and second-level administrative regions (state/region and "
+    "county/district), either one attribute at a time or as a single combined `STRUCT` "
+    "record for the whole place.\n"
+    "- **Timezone** -- map a coordinate to its IANA timezone name (e.g. "
+    "`America/New_York`) for localizing timestamps.\n"
+    "- **Distance** -- measure the great-circle (haversine) distance in kilometers "
+    "between two coordinates.\n\n"
+    "Every operation is a per-row scalar you can use inline in any projection or "
+    "predicate. Discover the exact functions and their signatures by listing the `main` "
+    "schema after attaching.\n\n"
     "Backed by GeoNames cities (`reverse_geocoder`, LGPL-3.0, used as an unmodified "
     "dependency) and offline IANA timezone polygons (`timezonefinder`, MIT)."
 )
@@ -112,11 +113,19 @@ _SCHEMA_DESCRIPTION_LLM = (
 )
 
 _SCHEMA_DESCRIPTION_MD = (
-    "Per-row offline reverse-geocoding scalars over Apache Arrow: `nearest_city`, "
-    "`country_code`, `admin1`, `admin2`, `reverse_geocode` (full STRUCT), `timezone`, "
-    "and `distance_km` (haversine). All take coordinates positionally and return `NULL` "
-    "for `NULL` or out-of-range inputs, never an error. Backed by GeoNames cities and "
-    "offline IANA timezone polygons -- no API keys or network required."
+    "## Reverse-geocoding scalars\n\n"
+    "Per-row scalar functions over Apache Arrow that turn a `(lat, lon)` coordinate "
+    "into human-readable geography: the nearest city, its ISO-3166 country code, the "
+    "first- and second-level administrative regions, and a single combined "
+    "nearest-place record. All take coordinates positionally.\n\n"
+    "## Timezone and distance\n\n"
+    "The schema also resolves a coordinate to its IANA timezone name (for localizing "
+    "timestamps) and computes the great-circle (haversine) distance in kilometers "
+    "between two points.\n\n"
+    "## Semantics\n\n"
+    "Every function returns `NULL` for a `NULL` or out-of-range input, never an error, "
+    "so it is safe to drop into large batch queries. Lookups are backed by GeoNames "
+    "cities and offline IANA timezone polygons -- no API keys or network required."
 )
 
 _SCHEMA_EXAMPLE_QUERIES = (
@@ -127,6 +136,94 @@ _SCHEMA_EXAMPLE_QUERIES = (
     "SELECT geocode.main.reverse_geocode(40.7128, -74.0060);\n"
     "SELECT geocode.main.timezone(40.7128, -74.0060);\n"
     "SELECT geocode.main.distance_km(40.7128, -74.0060, 51.5074, -0.1278);"
+)
+
+
+# VGI413 category registry for the `main` schema. Each entry is
+# {"name","title","description"}; every function declares one via `vgi.category`.
+_SCHEMA_CATEGORIES = json.dumps(
+    [
+        {
+            "name": "reverse_geocoding",
+            "title": "Reverse geocoding",
+            "description": "Resolve a coordinate to the nearest city, its country, and administrative regions.",
+        },
+        {
+            "name": "timezone",
+            "title": "Timezone",
+            "description": "Map a coordinate to its IANA timezone name for localizing timestamps.",
+        },
+        {
+            "name": "distance",
+            "title": "Distance",
+            "description": "Great-circle (haversine) distance in kilometers between two coordinates.",
+        },
+    ]
+)
+
+
+# VGI152/VGI920 agent-suitability suite (catalog-level). Each task's `prompt` is the
+# ONLY field shown to the analyst; `reference_sql`/`success_criteria` are grader-only.
+# References are anchored on STABLE facts (country codes, IANA timezones, deterministic
+# distances) rather than drift-prone GeoNames city labels, and `ignore_column_names`
+# relaxes result-column aliasing. Together the seven tasks exercise every function.
+_AGENT_TEST_TASKS = json.dumps(
+    [
+        {
+            "name": "country_code_of_point",
+            "prompt": "What ISO-3166 alpha-2 country code corresponds to latitude 48.8566, longitude 2.3522?",
+            "reference_sql": "SELECT geocode.main.country_code(48.8566, 2.3522) AS cc",
+            "success_criteria": "Returns the country code 'FR' (France) for the Paris coordinates.",
+            "ignore_column_names": True,
+        },
+        {
+            "name": "nearest_city_of_point",
+            "prompt": "What is the name of the nearest known city to latitude 48.8566, longitude 2.3522?",
+            "reference_sql": "SELECT geocode.main.nearest_city(48.8566, 2.3522) AS city",
+            "success_criteria": "Returns a city name at/near Paris, France (e.g. 'Paris').",
+            "ignore_column_names": True,
+        },
+        {
+            "name": "admin1_of_point",
+            "prompt": "Which first-level administrative region (state/prefecture/region) is nearest to "
+            "latitude 35.6762, longitude 139.6503?",
+            "reference_sql": "SELECT geocode.main.admin1(35.6762, 139.6503) AS region",
+            "success_criteria": "Returns the first-level admin region for the Tokyo coordinates (e.g. 'Tokyo').",
+            "ignore_column_names": True,
+        },
+        {
+            "name": "admin2_of_point",
+            "prompt": "Which second-level administrative region (county/district) is nearest to "
+            "latitude 34.0522, longitude -118.2437?",
+            "reference_sql": "SELECT geocode.main.admin2(34.0522, -118.2437) AS county",
+            "success_criteria": "Returns the second-level admin region for the Los Angeles coordinates "
+            "(e.g. 'Los Angeles County').",
+            "ignore_column_names": True,
+        },
+        {
+            "name": "reverse_geocode_country_field",
+            "prompt": "Using the combined nearest-place lookup for latitude 40.7128, longitude -74.0060, "
+            "return the ISO-3166 country code of that place.",
+            "reference_sql": "SELECT geocode.main.reverse_geocode(40.7128, -74.0060).country_code AS cc",
+            "success_criteria": "Extracts the country_code field ('US') from the reverse-geocode STRUCT.",
+            "ignore_column_names": True,
+        },
+        {
+            "name": "timezone_of_point",
+            "prompt": "What IANA timezone name applies at latitude 40.7128, longitude -74.0060?",
+            "reference_sql": "SELECT geocode.main.timezone(40.7128, -74.0060) AS tz",
+            "success_criteria": "Returns the IANA timezone 'America/New_York'.",
+            "ignore_column_names": True,
+        },
+        {
+            "name": "distance_between_points",
+            "prompt": "Compute the great-circle distance in kilometers, rounded to the nearest kilometer, "
+            "between (latitude 40.7128, longitude -74.0060) and (latitude 51.5074, longitude -0.1278).",
+            "reference_sql": "SELECT round(geocode.main.distance_km(40.7128, -74.0060, 51.5074, -0.1278)) AS km",
+            "success_criteria": "Returns the rounded haversine distance (~5570 km) between New York and London.",
+            "ignore_column_names": True,
+        },
+    ]
 )
 
 
@@ -167,6 +264,8 @@ _GEOCODE_CATALOG = Catalog(
         "vgi.license": "MIT",
         "vgi.support_contact": f"{_REPO_URL}/issues",
         "vgi.support_policy_url": f"{_REPO_URL}/blob/main/README.md",
+        # VGI152/VGI920 agent-suitability suite (see _AGENT_TEST_TASKS).
+        "vgi.agent_test_tasks": _AGENT_TEST_TASKS,
     },
     schemas=[
         Schema(
@@ -199,6 +298,9 @@ _GEOCODE_CATALOG = Catalog(
                 "vgi.doc_md": _SCHEMA_DESCRIPTION_MD,
                 # VGI506 representative example queries for the schema.
                 "vgi.example_queries": _SCHEMA_EXAMPLE_QUERIES,
+                # VGI413 navigation/SEO category registry; each function names one
+                # of these via its own `vgi.category` tag.
+                "vgi.categories": _SCHEMA_CATEGORIES,
             },
             functions=list(SCALAR_FUNCTIONS),
         ),
