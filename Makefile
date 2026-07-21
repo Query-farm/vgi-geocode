@@ -10,8 +10,11 @@
 # files under test/sql/. haybarn-unittest is a uv tool:
 #   uv tool install haybarn-unittest   # installs ~/.local/bin/haybarn-unittest
 
-# Worker command DuckDB uses for ATTACH (overridable).
-WORKER_STDIO    ?= uv run --python 3.13 geocode_worker.py
+# Worker command DuckDB uses for ATTACH (overridable). Use the project venv's
+# interpreter directly (not `uv run geocode_worker.py`): `uv run` on a PEP 723
+# script spins up a separate inline-metadata env that can cache a stale VGI SDK,
+# whereas `.venv/bin/python` uses exactly the synced, locked dependencies.
+WORKER_STDIO    ?= .venv/bin/python geocode_worker.py
 
 # haybarn-unittest lives in the uv tools bin; keep it on PATH.
 HAYBARN_BIN     ?= $(HOME)/.local/bin

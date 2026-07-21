@@ -131,14 +131,16 @@ jobs:
       - name: Resolve runner + worker paths
         run: |
           # Absolute paths: run-integration.sh cd's into a staging dir before
-          # invoking the runner, so relative paths would not resolve. The worker
-          # is a repo-root PEP 723 script (no console-script); `uv run` reads its
-          # inline deps and resolves them from PyPI, so an absolute script path
-          # spawns correctly regardless of cwd.
+          # invoking the runner, so relative paths would not resolve. Drive the
+          # worker with the synced project venv's interpreter (absolute path)
+          # rather than `uv run geocode_worker.py`: `uv run` on the PEP 723 script
+          # spins up a separate inline-metadata env that can cache a stale VGI SDK,
+          # whereas `.venv/bin/python` uses exactly the locked deps installed by
+          # the `uv sync --frozen` step above.
           UNITTEST="$PWD/$(find hb -name 'haybarn-unittest' -type f | head -1)"
           chmod +x "$UNITTEST"
           echo "HAYBARN_UNITTEST=$UNITTEST" >> "$GITHUB_ENV"
-          echo "WORKER_CMD=uv run --python 3.13 $PWD/geocode_worker.py" >> "$GITHUB_ENV"
+          echo "WORKER_CMD=$PWD/.venv/bin/python $PWD/geocode_worker.py" >> "$GITHUB_ENV"
 
       - name: Run extension integration suite (${{ matrix.transport }})
         run: ci/run-integration.sh
@@ -149,7 +151,7 @@ jobs:
   # extension and lint its catalog/schema/function metadata (descriptions, tags,
   # examples). Kept a separate job so the catalog-quality score is visible on its
   # own. Mirrors the integration job's build steps (uv + Python 3.13 + sync), then
-  # runs vgi-lint against the same `uv run geocode_worker.py` launch command.
+  # runs vgi-lint against the worker launched with the synced venv interpreter.
   metadata-quality:
     name: Metadata quality (vgi-lint)
     runs-on: ubuntu-latest
@@ -168,5 +170,9 @@ jobs:
       - name: vgi-lint
         uses: Query-farm/vgi-lint-check@v1
         with:
-          location: "uv run --python 3.13 geocode_worker.py"
+          # Use the synced venv interpreter, not `uv run geocode_worker.py`: the
+          # PEP 723 inline-metadata env can cache a stale VGI SDK and emit the old
+          # catalog schema, producing a false schema-mismatch. `.venv/bin/python`
+          # uses exactly the locked, current SDK installed by `uv sync --frozen`.
+          location: ".venv/bin/python geocode_worker.py"
           fail-on: info

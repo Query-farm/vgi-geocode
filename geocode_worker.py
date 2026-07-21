@@ -1,7 +1,7 @@
 # /// script
 # requires-python = ">=3.13"
 # dependencies = [
-#     "vgi-python[http]>=0.14.0",
+#     "vgi-python[http]>=0.16.0",
 #     "reverse_geocoder>=1.5",
 #     "timezonefinder>=6",
 #     "numpy",
@@ -99,15 +99,15 @@ _CATALOG_DESCRIPTION_MD = (
     "- **Distance** -- measure the great-circle (haversine) distance in kilometers "
     "between two coordinates.\n\n"
     "Every operation is a per-row scalar you can use inline in any projection or "
-    "predicate. Discover the exact functions and their signatures by listing the `main` "
-    "schema after attaching.\n\n"
+    "predicate, so enriching a whole coordinate column -- or filtering it by proximity "
+    "-- is a single `SELECT` with no joins, staging tables, or API round-trips.\n\n"
     "Backed by GeoNames cities (`reverse_geocoder`, LGPL-3.0, used as an unmodified "
     "dependency) and offline IANA timezone polygons (`timezonefinder`, MIT)."
 )
 
 _SCHEMA_DESCRIPTION_LLM = (
     "Per-row scalar geocoding functions: nearest_city, country_code, admin1, admin2, "
-    "reverse_geocode (full STRUCT of city/admin/country/place coordinates), timezone, "
+    "reverse_geocode (full `STRUCT` of city/admin/country/place coordinates), timezone, "
     "and distance_km (haversine). All take coordinates positionally and return NULL "
     "for NULL or out-of-range inputs."
 )
@@ -128,14 +128,39 @@ _SCHEMA_DESCRIPTION_MD = (
     "cities and offline IANA timezone polygons -- no API keys or network required."
 )
 
-_SCHEMA_EXAMPLE_QUERIES = (
-    "SELECT geocode.main.nearest_city(40.7128, -74.0060);\n"
-    "SELECT geocode.main.country_code(48.8566, 2.3522);\n"
-    "SELECT geocode.main.admin1(35.6762, 139.6503);\n"
-    "SELECT geocode.main.admin2(34.0522, -118.2437);\n"
-    "SELECT geocode.main.reverse_geocode(40.7128, -74.0060);\n"
-    "SELECT geocode.main.timezone(40.7128, -74.0060);\n"
-    "SELECT geocode.main.distance_km(40.7128, -74.0060, 51.5074, -0.1278);"
+# VGI506/VGI515: representative, self-contained (runnable), described example
+# queries for the schema. Beyond single-call lookups these show the real analyst
+# patterns -- enriching a coordinate column, grouping by country, proximity
+# filtering with distance_km -- so an agent learns how the functions compose.
+_SCHEMA_EXAMPLE_QUERIES = json.dumps(
+    [
+        {
+            "description": "Enrich a set of coordinates with nearest city and ISO-3166 country code.",
+            "sql": "SELECT lat, lon, geocode.main.nearest_city(lat, lon) AS city, "
+            "geocode.main.country_code(lat, lon) AS country "
+            "FROM (VALUES (40.7128, -74.0060), (48.8566, 2.3522), (35.6762, 139.6503)) AS t(lat, lon)",
+        },
+        {
+            "description": "Count coordinates per country by reverse-geocoding to a country code.",
+            "sql": "SELECT geocode.main.country_code(lat, lon) AS country, count(*) AS n "
+            "FROM (VALUES (40.7, -74.0), (34.0, -118.2), (48.8, 2.35)) AS t(lat, lon) "
+            "GROUP BY country ORDER BY n DESC",
+        },
+        {
+            "description": "Keep only points within 1000 km of Paris using the haversine distance.",
+            "sql": "SELECT name, round(geocode.main.distance_km(lat, lon, 48.8566, 2.3522)) AS km_to_paris "
+            "FROM (VALUES ('London', 51.5074, -0.1278), ('New York', 40.7128, -74.0060)) AS t(name, lat, lon) "
+            "WHERE geocode.main.distance_km(lat, lon, 48.8566, 2.3522) < 1000",
+        },
+        {
+            "description": "Pull the first-level admin region straight out of the reverse_geocode STRUCT.",
+            "sql": "SELECT geocode.main.reverse_geocode(40.7128, -74.0060).admin1 AS state",
+        },
+        {
+            "description": "Resolve the IANA timezone name for a coordinate to localize timestamps.",
+            "sql": "SELECT geocode.main.timezone(40.7128, -74.0060) AS tz",
+        },
+    ]
 )
 
 

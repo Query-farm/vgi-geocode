@@ -36,7 +36,7 @@ from typing import Annotated
 
 import pyarrow as pa
 from vgi.arguments import Param, Returns
-from vgi.metadata import FunctionExample, NullHandling
+from vgi.metadata import NullHandling
 from vgi.scalar_function import BindParameters, BindResult, ScalarFunction
 
 from . import geocoder
@@ -66,6 +66,7 @@ def _object_tags(
     doc_md: str,
     keywords: list[str],
     category: str,
+    examples: list[tuple[str, str]],
 ) -> dict[str, str]:
     """Build the standard per-object discovery/description tags.
 
@@ -78,6 +79,11 @@ def _object_tags(
         category: Name of one of the schema's ``vgi.categories`` entries
             (``reverse_geocoding`` / ``timezone`` / ``distance``), assigned to
             ``vgi.category`` as required by VGI413.
+        examples: ``(description, sql)`` pairs serialized to a JSON list of
+            ``{"description", "sql"}`` objects for ``vgi.example_queries``. This
+            tag is the described-example carrier the linter reads (VGI515): the
+            native ``duckdb_functions().examples`` column drops descriptions, so
+            every function must also surface described examples here.
 
     Returns:
         The tag dictionary to assign to the function's ``Meta.tags``.
@@ -88,6 +94,7 @@ def _object_tags(
         "vgi.doc_md": doc_md,
         "vgi.keywords": json.dumps(keywords),
         "vgi.category": category,
+        "vgi.example_queries": json.dumps([{"description": d, "sql": s} for d, s in examples]),
     }
 
 
@@ -161,12 +168,6 @@ class NearestCityFunction(ScalarFunction):
         description = "Name of the nearest known city to (lat, lon); NULL if out of range"
         categories = ["geocode", "reverse"]
         null_handling = NullHandling.SPECIAL
-        examples = [
-            FunctionExample(
-                sql="SELECT geocode.main.nearest_city(40.7128, -74.0060)",
-                description="Nearest city to New York coordinates",
-            ),
-        ]
         tags = {
             **_object_tags(
                 "Find Nearest City",
@@ -178,7 +179,7 @@ class NearestCityFunction(ScalarFunction):
                 "telemetry, store/asset locations) and want a human-readable place label "
                 "to group, filter, or display by.\n\n"
                 "## Inputs / outputs\n"
-                "- `lat` DOUBLE in `[-90, 90]`, `lon` DOUBLE in `[-180, 180]`.\n"
+                "- `lat` `DOUBLE` in `[-90, 90]`, `lon` `DOUBLE` in `[-180, 180]`.\n"
                 "- Returns a `VARCHAR` city name, or `NULL`.\n\n"
                 "## Behavior & edge cases\n"
                 "- This is a *nearest-land-place* lookup: the index has no notion of "
@@ -209,6 +210,12 @@ class NearestCityFunction(ScalarFunction):
                     "geonames",
                 ],
                 "reverse_geocoding",
+                [
+                    (
+                        "Nearest city to the New York City coordinates.",
+                        "SELECT geocode.main.nearest_city(40.7128, -74.0060) AS city",
+                    ),
+                ],
             ),
             # VGI509: at least one object ships guaranteed-runnable examples.
             "vgi.executable_examples": _EXECUTABLE_EXAMPLES,
@@ -238,12 +245,6 @@ class CountryCodeFunction(ScalarFunction):
         description = "ISO-3166 alpha-2 country code of the nearest place; NULL if out of range"
         categories = ["geocode", "reverse"]
         null_handling = NullHandling.SPECIAL
-        examples = [
-            FunctionExample(
-                sql="SELECT geocode.main.country_code(48.8566, 2.3522)",
-                description="Country code for Paris coordinates ('FR')",
-            ),
-        ]
         tags = _object_tags(
             "ISO Country Code",
             "Return the **ISO-3166 alpha-2** country code (e.g. `US`, `FR`, `JP`) of "
@@ -254,7 +255,7 @@ class CountryCodeFunction(ScalarFunction):
             "compliance, or joining to country reference tables -- without any geocoding "
             "API.\n\n"
             "## Inputs / outputs\n"
-            "- `lat` DOUBLE in `[-90, 90]`, `lon` DOUBLE in `[-180, 180]`.\n"
+            "- `lat` `DOUBLE` in `[-90, 90]`, `lon` `DOUBLE` in `[-180, 180]`.\n"
             "- Returns a two-letter `VARCHAR` country code, or `NULL`.\n\n"
             "## Behavior & edge cases\n"
             "- Resolved from the *nearest land place*, so an offshore point yields the "
@@ -283,6 +284,12 @@ class CountryCodeFunction(ScalarFunction):
                 "geonames",
             ],
             "reverse_geocoding",
+            [
+                (
+                    "ISO-3166 country code for the Paris coordinates (returns 'FR').",
+                    "SELECT geocode.main.country_code(48.8566, 2.3522) AS country",
+                ),
+            ],
         )
 
     @classmethod
@@ -309,12 +316,6 @@ class Admin1Function(ScalarFunction):
         description = "First-level admin region (state / region) of the nearest place; NULL if out of range"
         categories = ["geocode", "reverse"]
         null_handling = NullHandling.SPECIAL
-        examples = [
-            FunctionExample(
-                sql="SELECT geocode.main.admin1(40.7128, -74.0060)",
-                description="State / region for New York coordinates",
-            ),
-        ]
         tags = _object_tags(
             "First-Level Admin Region",
             "Return the **first-level administrative region** -- state, province, or "
@@ -325,7 +326,7 @@ class Admin1Function(ScalarFunction):
             "reporting, territory assignment, or joins to administrative reference "
             "data.\n\n"
             "## Inputs / outputs\n"
-            "- `lat` DOUBLE in `[-90, 90]`, `lon` DOUBLE in `[-180, 180]`.\n"
+            "- `lat` `DOUBLE` in `[-90, 90]`, `lon` `DOUBLE` in `[-180, 180]`.\n"
             "- Returns the admin1 name as `VARCHAR`, or `NULL`.\n\n"
             "## Behavior & edge cases\n"
             "- Names follow GeoNames conventions (e.g. `New York`, `Tokyo`, `Bavaria`) "
@@ -354,6 +355,12 @@ class Admin1Function(ScalarFunction):
                 "geonames",
             ],
             "reverse_geocoding",
+            [
+                (
+                    "First-level admin region (prefecture) for the Tokyo coordinates.",
+                    "SELECT geocode.main.admin1(35.6762, 139.6503) AS region",
+                ),
+            ],
         )
 
     @classmethod
@@ -380,12 +387,6 @@ class Admin2Function(ScalarFunction):
         description = "Second-level admin region (county/district) of the nearest place; NULL if out of range"
         categories = ["geocode", "reverse"]
         null_handling = NullHandling.SPECIAL
-        examples = [
-            FunctionExample(
-                sql="SELECT geocode.main.admin2(34.0522, -118.2437)",
-                description="County / district for Los Angeles coordinates",
-            ),
-        ]
         tags = _object_tags(
             "Second-Level Admin Region",
             "Return the **second-level administrative region** -- county, district, or "
@@ -395,7 +396,7 @@ class Admin2Function(ScalarFunction):
             "Use it for finer-grained geographic rollups than `admin1` (state): county- "
             "or district-level reporting, routing, or joins.\n\n"
             "## Inputs / outputs\n"
-            "- `lat` DOUBLE in `[-90, 90]`, `lon` DOUBLE in `[-180, 180]`.\n"
+            "- `lat` `DOUBLE` in `[-90, 90]`, `lon` `DOUBLE` in `[-180, 180]`.\n"
             "- Returns the admin2 name as `VARCHAR`, or `NULL`.\n\n"
             "## Behavior & edge cases\n"
             "- admin2 is **frequently empty** in GeoNames for many countries, so `NULL` "
@@ -424,6 +425,12 @@ class Admin2Function(ScalarFunction):
                 "geonames",
             ],
             "reverse_geocoding",
+            [
+                (
+                    "Second-level admin region (county) for the Los Angeles coordinates.",
+                    "SELECT geocode.main.admin2(34.0522, -118.2437) AS county",
+                ),
+            ],
         )
 
     @classmethod
@@ -457,16 +464,6 @@ class ReverseGeocodeFunction(ScalarFunction):
         )
         categories = ["geocode", "reverse"]
         null_handling = NullHandling.SPECIAL
-        examples = [
-            FunctionExample(
-                sql="SELECT geocode.main.reverse_geocode(40.7128, -74.0060)",
-                description="Full nearest-place record for New York coordinates",
-            ),
-            FunctionExample(
-                sql="SELECT geocode.main.reverse_geocode(35.6762, 139.6503).city",
-                description="City field of the nearest place (Tokyo)",
-            ),
-        ]
         tags = _object_tags(
             "Reverse Geocode To Struct",
             "Resolve a latitude/longitude to the **full nearest-place record** in a "
@@ -477,7 +474,7 @@ class ReverseGeocodeFunction(ScalarFunction):
             "`admin1`, `admin2`) when you need several attributes at once -- it does the "
             "KD-tree lookup once and lets you pluck fields with dot access.\n\n"
             "## Inputs / outputs\n"
-            "- `lat` DOUBLE in `[-90, 90]`, `lon` DOUBLE in `[-180, 180]`.\n"
+            "- `lat` `DOUBLE` in `[-90, 90]`, `lon` `DOUBLE` in `[-180, 180]`.\n"
             "- Returns a `STRUCT` with `city`, `admin1`, `admin2` (`VARCHAR`), "
             "`country_code` (`VARCHAR`), and `place_lat`/`place_lon` (`DOUBLE`, the "
             "coordinates of the matched GeoNames place).\n\n"
@@ -516,6 +513,16 @@ class ReverseGeocodeFunction(ScalarFunction):
                 "point lookup",
             ],
             "reverse_geocoding",
+            [
+                (
+                    "Full nearest-place STRUCT for the New York City coordinates.",
+                    "SELECT geocode.main.reverse_geocode(40.7128, -74.0060) AS place",
+                ),
+                (
+                    "Pluck the city field from the nearest-place STRUCT (Tokyo).",
+                    "SELECT geocode.main.reverse_geocode(35.6762, 139.6503).city AS city",
+                ),
+            ],
         )
 
     @classmethod
@@ -549,12 +556,6 @@ class TimezoneFunction(ScalarFunction):
         description = "IANA timezone name (e.g. 'America/New_York') for (lat, lon); NULL if out of range"
         categories = ["geocode", "timezone"]
         null_handling = NullHandling.SPECIAL
-        examples = [
-            FunctionExample(
-                sql="SELECT geocode.main.timezone(40.7128, -74.0060)",
-                description="IANA timezone for New York coordinates",
-            ),
-        ]
         tags = _object_tags(
             "IANA Timezone Lookup",
             "Return the **IANA timezone name** (e.g. `America/New_York`, `Europe/Paris`, "
@@ -565,7 +566,7 @@ class TimezoneFunction(ScalarFunction):
             "by timezone -- the returned string drops straight into DuckDB's "
             "`timezone(name, ts)` / `AT TIME ZONE`.\n\n"
             "## Inputs / outputs\n"
-            "- `lat` DOUBLE in `[-90, 90]`, `lon` DOUBLE in `[-180, 180]`.\n"
+            "- `lat` `DOUBLE` in `[-90, 90]`, `lon` `DOUBLE` in `[-180, 180]`.\n"
             "- Returns the IANA tz name as `VARCHAR`, or `NULL`.\n\n"
             "## Behavior & edge cases\n"
             "- Uses true timezone *polygons*, not a nearest-place lookup, so it is exact "
@@ -596,6 +597,12 @@ class TimezoneFunction(ScalarFunction):
                 "utc offset",
             ],
             "timezone",
+            [
+                (
+                    "IANA timezone name for the New York City coordinates.",
+                    "SELECT geocode.main.timezone(40.7128, -74.0060) AS tz",
+                ),
+            ],
         )
 
     @classmethod
@@ -628,12 +635,6 @@ class DistanceKmFunction(ScalarFunction):
         description = "Great-circle (haversine) distance in km between two points; NULL if out of range"
         categories = ["geocode", "distance"]
         null_handling = NullHandling.SPECIAL
-        examples = [
-            FunctionExample(
-                sql="SELECT geocode.main.distance_km(40.7128, -74.0060, 51.5074, -0.1278)",
-                description="Distance from New York to London (~5570 km)",
-            ),
-        ]
         tags = _object_tags(
             "Great-Circle Distance In Km",
             "Compute the **great-circle (haversine) distance in kilometers** between two "
@@ -676,6 +677,12 @@ class DistanceKmFunction(ScalarFunction):
                 "geodistance",
             ],
             "distance",
+            [
+                (
+                    "Great-circle distance from New York to London, in kilometers (~5570).",
+                    "SELECT geocode.main.distance_km(40.7128, -74.0060, 51.5074, -0.1278) AS km",
+                ),
+            ],
         )
 
     @classmethod
