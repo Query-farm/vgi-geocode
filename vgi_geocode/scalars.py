@@ -32,7 +32,7 @@ struct type is declared once as ``_REVERSE_TYPE`` and reused in both the
 from __future__ import annotations
 
 import json
-from typing import Annotated
+from typing import Annotated, cast
 
 import pyarrow as pa
 from vgi.arguments import Param, Returns
@@ -538,7 +538,7 @@ class ReverseGeocodeFunction(ScalarFunction):
     ) -> Annotated[pa.StructArray, Returns(arrow_type=_REVERSE_TYPE)]:
         """Map each input row to its output value."""
         places = geocoder.reverse_geocode_batch(list(zip(lat.to_pylist(), lon.to_pylist(), strict=True)))
-        return pa.array([_place_to_dict(p) for p in places], type=_REVERSE_TYPE)
+        return cast(pa.StructArray, pa.array([_place_to_dict(p) for p in places], type=_REVERSE_TYPE))
 
 
 # ===========================================================================

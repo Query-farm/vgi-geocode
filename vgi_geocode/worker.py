@@ -183,66 +183,46 @@ _SCHEMA_CATEGORIES = json.dumps(
 )
 
 
-# VGI152/VGI920 agent-suitability suite (catalog-level). Each task's `prompt` is the
-# ONLY field shown to the analyst; `reference_sql`/`success_criteria` are grader-only.
-# References are anchored on STABLE facts (country codes, IANA timezones, deterministic
-# distances) rather than drift-prone GeoNames city labels, and `ignore_column_names`
-# relaxes result-column aliasing. Together the seven tasks exercise every function.
+# VGI152/VGI920 agent-suitability suite (catalog-level). Each task is a public
+# {name, prompt} object; the prompt is the ONLY field shown to the analyst.
+# VGI416: the grader-only fields (`reference_sql`, `success_criteria`,
+# `ignore_column_names`) live in the private `vgi-agent-tests.yaml` sidecar at the
+# repo root. References are anchored on STABLE facts (country codes, IANA timezones,
+# deterministic distances) rather than drift-prone GeoNames city labels. Together the
+# seven tasks exercise every function.
 _AGENT_TEST_TASKS = json.dumps(
     [
         {
             "name": "country_code_of_point",
             "prompt": "What ISO-3166 alpha-2 country code corresponds to latitude 48.8566, longitude 2.3522?",
-            "reference_sql": "SELECT geocode.main.country_code(48.8566, 2.3522) AS cc",
-            "success_criteria": "Returns the country code 'FR' (France) for the Paris coordinates.",
-            "ignore_column_names": True,
         },
         {
             "name": "nearest_city_of_point",
             "prompt": "What is the name of the nearest known city to latitude 48.8566, longitude 2.3522?",
-            "reference_sql": "SELECT geocode.main.nearest_city(48.8566, 2.3522) AS city",
-            "success_criteria": "Returns a city name at/near Paris, France (e.g. 'Paris').",
-            "ignore_column_names": True,
         },
         {
             "name": "admin1_of_point",
             "prompt": "Which first-level administrative region (state/prefecture/region) is nearest to "
             "latitude 35.6762, longitude 139.6503?",
-            "reference_sql": "SELECT geocode.main.admin1(35.6762, 139.6503) AS region",
-            "success_criteria": "Returns the first-level admin region for the Tokyo coordinates (e.g. 'Tokyo').",
-            "ignore_column_names": True,
         },
         {
             "name": "admin2_of_point",
             "prompt": "Which second-level administrative region (county/district) is nearest to "
             "latitude 34.0522, longitude -118.2437?",
-            "reference_sql": "SELECT geocode.main.admin2(34.0522, -118.2437) AS county",
-            "success_criteria": "Returns the second-level admin region for the Los Angeles coordinates "
-            "(e.g. 'Los Angeles County').",
-            "ignore_column_names": True,
         },
         {
             "name": "reverse_geocode_country_field",
             "prompt": "Using the combined nearest-place lookup for latitude 40.7128, longitude -74.0060, "
             "return the ISO-3166 country code of that place.",
-            "reference_sql": "SELECT geocode.main.reverse_geocode(40.7128, -74.0060).country_code AS cc",
-            "success_criteria": "Extracts the country_code field ('US') from the reverse-geocode STRUCT.",
-            "ignore_column_names": True,
         },
         {
             "name": "timezone_of_point",
             "prompt": "What IANA timezone name applies at latitude 40.7128, longitude -74.0060?",
-            "reference_sql": "SELECT geocode.main.timezone(40.7128, -74.0060) AS tz",
-            "success_criteria": "Returns the IANA timezone 'America/New_York'.",
-            "ignore_column_names": True,
         },
         {
             "name": "distance_between_points",
             "prompt": "Compute the great-circle distance in kilometers, rounded to the nearest kilometer, "
             "between (latitude 40.7128, longitude -74.0060) and (latitude 51.5074, longitude -0.1278).",
-            "reference_sql": "SELECT round(geocode.main.distance_km(40.7128, -74.0060, 51.5074, -0.1278)) AS km",
-            "success_criteria": "Returns the rounded haversine distance (~5570 km) between New York and London.",
-            "ignore_column_names": True,
         },
     ]
 )
@@ -290,7 +270,7 @@ _GEOCODE_CATALOG = Catalog(
     },
     schemas=[
         Schema(
-            name="main",
+            path=["main"],
             comment="Offline reverse geocoding: lat/lon -> place, country, admin regions, timezone",
             tags={
                 "vgi.title": "Geocode - main",

@@ -44,6 +44,7 @@ def _two(
     results = list(
         client.scalar_function(
             function_name=name,
+            schema_path=["main"],
             input=iter([batch]),
             arguments=Arguments(positional=[]),
         )
@@ -64,6 +65,7 @@ def _four(client: Client, name: str, rows: list[tuple]) -> list:
     results = list(
         client.scalar_function(
             function_name=name,
+            schema_path=["main"],
             input=iter([batch]),
             arguments=Arguments(positional=[]),
         )

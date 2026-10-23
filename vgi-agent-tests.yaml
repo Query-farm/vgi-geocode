@@ -1,0 +1,32 @@
+# Private graders for `vgi-lint simulate` (VGI416). The worker publishes only
+# task names and prompts in vgi.agent_test_tasks; the canonical solutions and
+# grading options stay here in the repo, never in the catalog metadata.
+tasks:
+  - name: country_code_of_point
+    reference_sql: "SELECT geocode.main.country_code(48.8566, 2.3522) AS cc"
+    success_criteria: "Returns the country code 'FR' (France) for the Paris coordinates."
+    ignore_column_names: true
+  - name: nearest_city_of_point
+    reference_sql: "SELECT geocode.main.nearest_city(48.8566, 2.3522) AS city"
+    success_criteria: "Returns a city name at/near Paris, France (e.g. 'Paris')."
+    ignore_column_names: true
+  - name: admin1_of_point
+    reference_sql: "SELECT geocode.main.admin1(35.6762, 139.6503) AS region"
+    success_criteria: "Returns the first-level admin region for the Tokyo coordinates (e.g. 'Tokyo')."
+    ignore_column_names: true
+  - name: admin2_of_point
+    reference_sql: "SELECT geocode.main.admin2(34.0522, -118.2437) AS county"
+    success_criteria: "Returns the second-level admin region for the Los Angeles coordinates (e.g. 'Los Angeles County')."
+    ignore_column_names: true
+  - name: reverse_geocode_country_field
+    reference_sql: "SELECT geocode.main.reverse_geocode(40.7128, -74.0060).country_code AS cc"
+    success_criteria: "Extracts the country_code field ('US') from the reverse-geocode STRUCT."
+    ignore_column_names: true
+  - name: timezone_of_point
+    reference_sql: "SELECT geocode.main.timezone(40.7128, -74.0060) AS tz"
+    success_criteria: "Returns the IANA timezone 'America/New_York'."
+    ignore_column_names: true
+  - name: distance_between_points
+    reference_sql: "SELECT round(geocode.main.distance_km(40.7128, -74.0060, 51.5074, -0.1278)) AS km"
+    success_criteria: "Returns the rounded haversine distance (~5570 km) between New York and London."
+    ignore_column_names: true
