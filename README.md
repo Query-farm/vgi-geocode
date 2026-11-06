@@ -154,7 +154,7 @@ poles/antimeridian boundaries, out-of-range and NULL edges, ocean points);
 exactly as DuckDB would after `ATTACH`. The `test/sql/*.test` files are DuckDB
 sqllogictest cases run by
 [`haybarn-unittest`](https://pypi.org/project/haybarn-unittest/)
-(`uv tool install haybarn-unittest`) against a real `ATTACH` + `SELECT`.
+(`uv tool install --prerelease allow 'haybarn-unittest>=2.0.0rc11,<2.1'`) against a real `ATTACH` + `SELECT`.
 
 ## Layout
 

@@ -182,7 +182,7 @@ cat > "$STAGE/test/_warm.test" <<'EOF'
 statement ok
 INSTALL vgi FROM community;
 EOF
-"$HAYBARN_UNITTEST" "test/_warm.test" >/dev/null 2>&1 || echo "::warning::extension warm step did not fully succeed"
+"$HAYBARN_UNITTEST" --keep-home "test/_warm.test" >/dev/null 2>&1 || echo "::warning::extension warm step did not fully succeed"
 rm -f "$STAGE/test/_warm.test"
 
 # Run the whole suite in one invocation, capturing the runner's native
@@ -196,7 +196,7 @@ rm -f "$STAGE/test/_warm.test"
 echo "Running suite (transport: $TRANSPORT, worker: $VGI_GEOCODE_WORKER) ..."
 OUT_FILE="$(mktemp)"
 set +e
-"$HAYBARN_UNITTEST" "test/sql/*" 2>&1 | tee "$OUT_FILE"
+"$HAYBARN_UNITTEST" --keep-home "test/sql/*" 2>&1 | tee "$OUT_FILE"
 RC="${PIPESTATUS[0]}"
 set -e
 if [[ "$RC" -ne 0 ]]; then
