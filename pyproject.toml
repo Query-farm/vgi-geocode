@@ -1,6 +1,6 @@
 [project]
 name = "vgi-geocode"
-version = "0.2.0"
+version = "0.3.0"
 description = "Offline reverse geocoding (lat/lon -> place, country, admin, timezone) for DuckDB via VGI"
 readme = "README.md"
 keywords = [
