@@ -235,6 +235,9 @@ _GEOCODE_CATALOG = Catalog(
     source_url=_REPO_URL,
     tags={
         "vgi.title": "Offline Reverse Geocoding",
+        "vgi.subtitle": (
+            "Turn latitude/longitude into city, country, admin region and timezone offline, plus haversine distance."
+        ),
         "vgi.keywords": json.dumps(
             [
                 "geocode",
@@ -273,7 +276,7 @@ _GEOCODE_CATALOG = Catalog(
             path=["main"],
             comment="Offline reverse geocoding: lat/lon -> place, country, admin regions, timezone",
             tags={
-                "vgi.title": "Geocode - main",
+                "vgi.title": "Reverse Geocoding",
                 "vgi.keywords": json.dumps(
                     [
                         "geocode",
