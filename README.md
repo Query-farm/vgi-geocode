@@ -21,7 +21,7 @@ timezone polygons; MIT).
 
 ```sql
 INSTALL vgi FROM community; LOAD vgi;
-ATTACH 'geocode' (TYPE vgi, LOCATION 'uvx --from git+https://github.com/Query-farm/vgi-geocode@v0.3.0 vgi-geocode-worker');
+ATTACH 'geocode' (TYPE vgi, LOCATION 'uvx --from git+https://github.com/Query-farm/vgi-geocode@v0.4.0 vgi-geocode-worker');
 
 SELECT geocode.nearest_city(40.7128, -74.0060);          -- 'New York City'
 SELECT geocode.country_code(48.8566, 2.3522);            -- 'FR'
@@ -47,7 +47,7 @@ The worker isn't on PyPI; [uv](https://docs.astral.sh/uv/) runs it straight from
 INSTALL vgi FROM community;
 LOAD vgi;
 
-ATTACH 'geocode' AS geocode (TYPE vgi, LOCATION 'uvx --from git+https://github.com/Query-farm/vgi-geocode@v0.3.0 vgi-geocode-worker');
+ATTACH 'geocode' AS geocode (TYPE vgi, LOCATION 'uvx --from git+https://github.com/Query-farm/vgi-geocode@v0.4.0 vgi-geocode-worker');
 
 -- Enrich a set of coordinates with nearest city and ISO-3166 country code.
 SELECT lat, lon, geocode.main.nearest_city(lat, lon) AS city, geocode.main.country_code(lat, lon) AS country FROM (VALUES (40.7128, -74.0060), (48.8566, 2.3522), (35.6762, 139.6503)) AS t(lat, lon);
@@ -56,14 +56,14 @@ SELECT lat, lon, geocode.main.nearest_city(lat, lon) AS city, geocode.main.count
 SELECT geocode.main.country_code(lat, lon) AS country, count(*) AS n FROM (VALUES (40.7, -74.0), (34.0, -118.2), (48.8, 2.35)) AS t(lat, lon) GROUP BY country ORDER BY n DESC;
 ```
 
-Change `@v0.3.0` to move to a newer release.
+Change `@v0.4.0` to move to a newer release.
 
 ### Other ways to run it
 
 - **Docker** (the image bundles the worker and its dependencies):
 
   ```sql
-  ATTACH 'geocode' AS geocode (TYPE vgi, LOCATION 'docker://ghcr.io/query-farm/vgi-geocode:0.3.0');
+  ATTACH 'geocode' AS geocode (TYPE vgi, LOCATION 'docker://ghcr.io/query-farm/vgi-geocode:0.4.0');
   ```
 
 - **From a local checkout** (`git clone https://github.com/Query-farm/vgi-geocode`), point `LOCATION` at `uv run --project /path/to/vgi-geocode vgi-geocode-worker`.
