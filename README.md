@@ -141,6 +141,23 @@ spatial indexes and handy on its own:
 SELECT geocode.distance_km(40.7128, -74.0060, 51.5074, -0.1278);  -- ~5570 km (NYC -> London)
 ```
 
+The functions compose. Split a GPS trace into legs, measure each with
+`distance_km`, and flag the legs whose endpoints fall in different countries:
+
+```sql
+WITH legs AS (
+  SELECT seq, lag(lat) OVER w AS prev_lat, lag(lon) OVER w AS prev_lon, lat, lon
+  FROM (VALUES (1, 48.8566, 2.3522), (2, 45.7640, 4.8357), (3, 46.2044, 6.1432),
+               (4, 47.3769, 8.5417), (5, 45.4642, 9.1900)) AS t(seq, lat, lon)
+  WINDOW w AS (ORDER BY seq))
+SELECT seq,
+       geocode.country_code(prev_lat, prev_lon) AS from_country,
+       geocode.country_code(lat, lon)           AS to_country,
+       round(geocode.distance_km(prev_lat, prev_lon, lat, lon)) AS leg_km
+FROM legs WHERE prev_lat IS NOT NULL ORDER BY seq;
+-- FR->FR 391 km, FR->CH 112 km, CH->CH 224 km, CH->IT 218 km
+```
+
 ## Dependencies & licensing
 
 | Component | License | Notes |

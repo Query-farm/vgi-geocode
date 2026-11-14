@@ -98,26 +98,88 @@ def _object_tags(
     }
 
 
+# ---------------------------------------------------------------------------
+# Composed examples: several of this worker's functions in one realistic query.
+#
+# Each is a ``(description, sql)`` pair defined ONCE here and referenced from the
+# driving function's example list (within its first five, which is all the
+# vgi-lint agent simulator shows) and from the schema-level list in ``worker.py``.
+# All run offline on inline VALUES, so they are deterministic.
+# ---------------------------------------------------------------------------
+
+COMPOSED_TRACE_BORDER_LEGS: tuple[str, str] = (
+    "Split a GPS trace (Paris -> Lyon -> Geneva -> Zurich -> Milan) into legs with LAG, measure each leg "
+    "with distance_km and flag the legs that cross a border by comparing country_code at both ends "
+    "(FR->CH and CH->IT cross; FR->FR and CH->CH do not).",
+    "WITH trace AS (SELECT * FROM (VALUES (1, 48.8566, 2.3522), (2, 45.7640, 4.8357), (3, 46.2044, 6.1432), "
+    "(4, 47.3769, 8.5417), (5, 45.4642, 9.1900)) AS t(seq, lat, lon)), "
+    "legs AS (SELECT seq, lag(lat) OVER w AS prev_lat, lag(lon) OVER w AS prev_lon, lat, lon "
+    "FROM trace WINDOW w AS (ORDER BY seq)) "
+    "SELECT seq, geocode.main.country_code(prev_lat, prev_lon) AS from_country, "
+    "geocode.main.country_code(lat, lon) AS to_country, "
+    "round(geocode.main.distance_km(prev_lat, prev_lon, lat, lon)) AS leg_km, "
+    "from_country <> to_country AS crosses_border "
+    "FROM legs WHERE prev_lat IS NOT NULL ORDER BY seq",
+)
+
+COMPOSED_MATCH_DISTANCE: tuple[str, str] = (
+    "Measure how far each point is from the GeoNames place it was labelled with by feeding the "
+    "reverse_geocode STRUCT's place_lat/place_lon into distance_km; a large gap (an ocean point ~1079 km "
+    "from Ribeira Grande, PT) flags a city label that should not be trusted, while Times Square is ~3 km "
+    "from its match.",
+    "SELECT name, p.city, p.country_code, "
+    "round(geocode.main.distance_km(lat, lon, p.place_lat, p.place_lon), 1) AS km_to_matched_place "
+    "FROM (SELECT name, lat, lon, geocode.main.reverse_geocode(lat, lon) AS p "
+    "FROM (VALUES ('Times Square', 40.7580, -73.9855), ('Nevada desert', 38.5, -116.5), "
+    "('Mid-Atlantic', 35.0, -40.0), ('Null Island', 0.0, 0.0)) AS t(name, lat, lon)) "
+    "ORDER BY km_to_matched_place DESC",
+)
+
+COMPOSED_LOCAL_TIME: tuple[str, str] = (
+    "Convert UTC event timestamps to each event's local wall-clock time: timezone(lat, lon) supplies the "
+    "IANA zone for DuckDB's timezone(zone, ts), labelled with nearest_city (14:00 UTC is 09:00 in New York "
+    "and 23:00 in Tokyo in March, 15:00 in London in July).",
+    "SELECT event_id, geocode.main.nearest_city(lat, lon) AS city, tz, ts_utc, "
+    "timezone(tz, ts_utc) AS local_time "
+    "FROM (SELECT *, geocode.main.timezone(lat, lon) AS tz "
+    "FROM (VALUES (1, 40.7128, -74.0060, TIMESTAMPTZ '2026-03-01 14:00:00+00'), "
+    "(2, 35.6762, 139.6503, TIMESTAMPTZ '2026-03-01 14:00:00+00'), "
+    "(3, 51.5074, -0.1278, TIMESTAMPTZ '2026-07-01 14:00:00+00')) AS t(event_id, lat, lon, ts_utc)) "
+    "ORDER BY event_id",
+)
+
+COMPOSED_EXAMPLES: list[tuple[str, str]] = [
+    COMPOSED_TRACE_BORDER_LEGS,
+    COMPOSED_MATCH_DISTANCE,
+    COMPOSED_LOCAL_TIME,
+]
+
+
 # Guaranteed-runnable, catalog-qualified examples (VGI509). Each ``sql`` is
 # self-contained and re-runnable against an attached ``geocode`` worker.
 # ``expected_result`` is omitted deliberately: the linter only needs each query
 # to execute cleanly, and pinning GeoNames labels (which drift between snapshots)
-# would be brittle.
-_EXECUTABLE_EXAMPLES = (
-    "["
-    '{"description": "Nearest city to New York coordinates.", '
-    '"sql": "SELECT geocode.main.nearest_city(40.7128, -74.0060) AS city"},'
-    '{"description": "ISO-3166 country code for Paris coordinates.", '
-    '"sql": "SELECT geocode.main.country_code(48.8566, 2.3522) AS cc"},'
-    '{"description": "First-level admin region (state) for Tokyo.", '
-    '"sql": "SELECT geocode.main.admin1(35.6762, 139.6503) AS region"},'
-    '{"description": "Full nearest-place STRUCT for New York.", '
-    '"sql": "SELECT geocode.main.reverse_geocode(40.7128, -74.0060) AS place"},'
-    '{"description": "IANA timezone for New York coordinates.", '
-    '"sql": "SELECT geocode.main.timezone(40.7128, -74.0060) AS tz"},'
-    '{"description": "Great-circle distance from New York to London (km).", '
-    '"sql": "SELECT geocode.main.distance_km(40.7128, -74.0060, 51.5074, -0.1278) AS km"}'
-    "]"
+# would be brittle. The composed border-crossing trace is included because it is
+# offline and deterministic (country codes + haversine arithmetic).
+_EXECUTABLE_EXAMPLES = json.dumps(
+    [
+        {"description": d, "sql": q}
+        for d, q in [
+            ("Nearest city to New York coordinates.", "SELECT geocode.main.nearest_city(40.7128, -74.0060) AS city"),
+            ("ISO-3166 country code for Paris coordinates.", "SELECT geocode.main.country_code(48.8566, 2.3522) AS cc"),
+            ("First-level admin region (state) for Tokyo.", "SELECT geocode.main.admin1(35.6762, 139.6503) AS region"),
+            (
+                "Full nearest-place STRUCT for New York.",
+                "SELECT geocode.main.reverse_geocode(40.7128, -74.0060) AS place",
+            ),
+            ("IANA timezone for New York coordinates.", "SELECT geocode.main.timezone(40.7128, -74.0060) AS tz"),
+            (
+                "Great-circle distance from New York to London (km).",
+                "SELECT geocode.main.distance_km(40.7128, -74.0060, 51.5074, -0.1278) AS km",
+            ),
+            COMPOSED_TRACE_BORDER_LEGS,
+        ]
+    ]
 )
 
 
@@ -522,6 +584,7 @@ class ReverseGeocodeFunction(ScalarFunction):
                     "Pluck the city field from the nearest-place STRUCT (Tokyo).",
                     "SELECT geocode.main.reverse_geocode(35.6762, 139.6503).city AS city",
                 ),
+                COMPOSED_MATCH_DISTANCE,
             ],
         )
 
@@ -602,6 +665,7 @@ class TimezoneFunction(ScalarFunction):
                     "IANA timezone name for the New York City coordinates.",
                     "SELECT geocode.main.timezone(40.7128, -74.0060) AS tz",
                 ),
+                COMPOSED_LOCAL_TIME,
             ],
         )
 
@@ -682,6 +746,7 @@ class DistanceKmFunction(ScalarFunction):
                     "Great-circle distance from New York to London, in kilometers (~5570).",
                     "SELECT geocode.main.distance_km(40.7128, -74.0060, 51.5074, -0.1278) AS km",
                 ),
+                COMPOSED_TRACE_BORDER_LEGS,
             ],
         )
 

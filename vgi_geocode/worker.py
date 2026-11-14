@@ -40,7 +40,7 @@ from vgi import Worker
 from vgi.catalog import Catalog, Schema
 
 from vgi_geocode import geocoder
-from vgi_geocode.scalars import SCALAR_FUNCTIONS
+from vgi_geocode.scalars import COMPOSED_EXAMPLES, SCALAR_FUNCTIONS
 
 _REPO_URL = "https://github.com/Query-farm/vgi-geocode"
 
@@ -128,6 +128,8 @@ _SCHEMA_DESCRIPTION_MD = (
 # queries for the schema. Beyond single-call lookups these show the real analyst
 # patterns -- enriching a coordinate column, grouping by country, proximity
 # filtering with distance_km -- so an agent learns how the functions compose.
+# The multi-function composed examples (border-crossing legs, label confidence,
+# local time) are defined once in ``scalars.COMPOSED_EXAMPLES`` and appended here.
 _SCHEMA_EXAMPLE_QUERIES = json.dumps(
     [
         {
@@ -156,6 +158,7 @@ _SCHEMA_EXAMPLE_QUERIES = json.dumps(
             "description": "Resolve the IANA timezone name for a coordinate to localize timestamps.",
             "sql": "SELECT geocode.main.timezone(40.7128, -74.0060) AS tz",
         },
+        *({"description": d, "sql": q} for d, q in COMPOSED_EXAMPLES),
     ]
 )
 
@@ -189,7 +192,8 @@ _SCHEMA_CATEGORIES = json.dumps(
 # `ignore_column_names`) live in the private `vgi-agent-tests.yaml` sidecar at the
 # repo root. References are anchored on STABLE facts (country codes, IANA timezones,
 # deterministic distances) rather than drift-prone GeoNames city labels. Together the
-# seven tasks exercise every function.
+# tasks exercise every function; the last two combine functions (country_code with
+# distance_km over a trace, country_code with timezone in an aggregate).
 _AGENT_TEST_TASKS = json.dumps(
     [
         {
@@ -223,6 +227,24 @@ _AGENT_TEST_TASKS = json.dumps(
             "name": "distance_between_points",
             "prompt": "Compute the great-circle distance in kilometers, rounded to the nearest kilometer, "
             "between (latitude 40.7128, longitude -74.0060) and (latitude 51.5074, longitude -0.1278).",
+        },
+        {
+            "name": "border_crossing_trace_km",
+            "prompt": "A truck's GPS trace visits these points in order: 1 (48.2082, 16.3738), "
+            "2 (48.1486, 17.1077), 3 (47.4979, 19.0402), 4 (46.2530, 20.1414), 5 (44.7866, 20.4489) "
+            "(latitude, longitude). Treat each consecutive pair as a leg. Using the reverse-geocoded "
+            "ISO-3166 country code of each leg's two endpoints, keep only the legs whose endpoints are in "
+            "different countries, and return one row with one column total_km: the sum of those legs' "
+            "great-circle distances in kilometers, rounded to the nearest kilometer, as an INTEGER.",
+        },
+        {
+            "name": "timezones_per_country",
+            "prompt": "For the points (40.7128, -74.0060), (34.0522, -118.2437), (41.8781, -87.6298), "
+            "(48.8566, 2.3522), (45.7640, 4.8357), (-33.8688, 151.2093), (-31.9505, 115.8605) "
+            "(latitude, longitude), reverse-geocode each point to its ISO-3166 country code and its IANA "
+            "timezone, then return one row per country with columns country_code (VARCHAR) and "
+            "n_timezones (BIGINT, the number of distinct timezones among that country's points), "
+            "ordered by country_code.",
         },
     ]
 )

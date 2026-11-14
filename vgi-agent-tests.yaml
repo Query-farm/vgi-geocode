@@ -30,3 +30,25 @@ tasks:
     reference_sql: "SELECT round(geocode.main.distance_km(40.7128, -74.0060, 51.5074, -0.1278)) AS km"
     success_criteria: "Returns the rounded haversine distance (~5570 km) between New York and London."
     ignore_column_names: true
+  - name: border_crossing_trace_km
+    reference_sql: >-
+      WITH trace AS (SELECT * FROM (VALUES (1, 48.2082, 16.3738), (2, 48.1486, 17.1077),
+      (3, 47.4979, 19.0402), (4, 46.2530, 20.1414), (5, 44.7866, 20.4489)) AS t(seq, lat, lon)),
+      legs AS (SELECT lag(lat) OVER w AS plat, lag(lon) OVER w AS plon, lat, lon
+      FROM trace WINDOW w AS (ORDER BY seq))
+      SELECT CAST(round(sum(geocode.main.distance_km(plat, plon, lat, lon))) AS INTEGER) AS total_km
+      FROM legs
+      WHERE plat IS NOT NULL
+      AND geocode.main.country_code(plat, plon) <> geocode.main.country_code(lat, lon)
+    success_criteria: >-
+      Sums the three border-crossing legs (AT->SK ~55 km, SK->HU ~161 km, HU->RS ~165 km),
+      excluding the HU->HU leg, for a total of 381 km.
+    ignore_column_names: true
+  - name: timezones_per_country
+    reference_sql: >-
+      SELECT geocode.main.country_code(lat, lon) AS country_code,
+      count(DISTINCT geocode.main.timezone(lat, lon)) AS n_timezones
+      FROM (VALUES (40.7128, -74.0060), (34.0522, -118.2437), (41.8781, -87.6298), (48.8566, 2.3522),
+      (45.7640, 4.8357), (-33.8688, 151.2093), (-31.9505, 115.8605)) AS t(lat, lon)
+      GROUP BY country_code ORDER BY country_code
+    success_criteria: "Returns AU 2, FR 1, US 3 (ordered by country code)."
