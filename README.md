@@ -231,3 +231,7 @@ Written by [Query.Farm](https://query.farm).
 
 Copyright 2026 Query Farm LLC - https://query.farm
 
+
+## Executed notebooks
+
+See the [selected-place distance walkthrough](notebooks/README.md) for an offline SQL audit of reverse-geocoding results and a focused proximity-screen experiment.
