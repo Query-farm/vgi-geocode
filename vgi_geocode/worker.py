@@ -102,10 +102,11 @@ _CATALOG_DESCRIPTION_MD = (
 )
 
 _SCHEMA_DESCRIPTION_LLM = (
-    "Per-row scalar geocoding functions: nearest_city, country_code, admin1, admin2, "
-    "reverse_geocode (full `STRUCT` of city/admin/country/place coordinates), timezone, "
-    "and distance_km (haversine). All take coordinates positionally and return NULL "
-    "for NULL or out-of-range inputs."
+    "Per-row scalar geocoding over coordinates: resolve a latitude/longitude to the "
+    "nearest known place and its country and administrative regions (one attribute at "
+    "a time or as one combined record), to its IANA timezone, or measure the "
+    "great-circle distance between two points. All take coordinates positionally and "
+    "return NULL for NULL or out-of-range inputs, so they drop into batch queries."
 )
 
 _SCHEMA_DESCRIPTION_MD = (
