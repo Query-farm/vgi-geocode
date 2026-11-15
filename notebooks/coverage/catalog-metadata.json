@@ -1,0 +1,45 @@
+{
+  "query": "SELECT * FROM duckdb_databases() WHERE database_name='geocode'",
+  "columns": [
+    "database_name",
+    "database_oid",
+    "path",
+    "comment",
+    "tags",
+    "internal",
+    "type",
+    "readonly",
+    "encrypted",
+    "cipher",
+    "options"
+  ],
+  "rows": [
+    [
+      "geocode",
+      22595,
+      null,
+      "Offline reverse geocoding: lat/lon -> place, country, admin regions, timezone, plus haversine distance",
+      {
+        "vgi.agent_test_tasks": "[{\"name\": \"country_code_of_point\", \"prompt\": \"What ISO-3166 alpha-2 country code corresponds to latitude 48.8566, longitude 2.3522?\"}, {\"name\": \"nearest_city_of_point\", \"prompt\": \"What is the name of the nearest known city to latitude 48.8566, longitude 2.3522?\"}, {\"name\": \"admin1_of_point\", \"prompt\": \"Which first-level administrative region (state/prefecture/region) is nearest to latitude 35.6762, longitude 139.6503?\"}, {\"name\": \"admin2_of_point\", \"prompt\": \"Which second-level administrative region (county/district) is nearest to latitude 34.0522, longitude -118.2437?\"}, {\"name\": \"reverse_geocode_country_field\", \"prompt\": \"Using the combined nearest-place lookup for latitude 40.7128, longitude -74.0060, return the ISO-3166 country code of that place.\"}, {\"name\": \"timezone_of_point\", \"prompt\": \"What IANA timezone name applies at latitude 40.7128, longitude -74.0060?\"}, {\"name\": \"distance_between_points\", \"prompt\": \"Compute the great-circle distance in kilometers, rounded to the nearest kilometer, between (latitude 40.7128, longitude -74.0060) and (latitude 51.5074, longitude -0.1278).\"}]",
+        "vgi.author": "Query.Farm",
+        "vgi.copyright": "Copyright 2026 Query Farm LLC - https://query.farm",
+        "vgi.doc_llm": "Offline reverse geocoding for SQL: turn a latitude/longitude into the nearest known place (city), its ISO-3166 country code, first- and second-level admin regions (state/region, county/district), and IANA timezone -- entirely offline with no API keys or network. Also computes great-circle (haversine) distance in kilometers between two points. Backed by the GeoNames cities KD-tree (reverse_geocoder) and offline IANA timezone polygons (timezonefinder). Use to enrich coordinate columns with place names, countries, regions and timezones, or to measure distances, directly in DuckDB.",
+        "vgi.doc_md": "# Offline Reverse Geocoding in SQL\n\n**Turn latitude/longitude coordinates into the nearest city, country, admin regions and IANA timezone -- entirely offline, with no API keys, no rate limits and no network calls -- directly in DuckDB.**\n\n`geocode` is a VGI worker that brings fast, hermetic **reverse geocoding** to SQL. Point it at any column of `(lat, lon)` coordinates and it enriches each row with the nearest known place name, its ISO-3166 country code, first- and second-level administrative regions (state/region, county/district), and the local IANA timezone. Because every lookup runs against bundled spatial databases rather than a hosted geocoding API, it works on air-gapped hosts, scales to millions of rows without per-request billing, and returns deterministic results. It is built for data engineers, analysts and GIS practitioners who need to attach human-readable geography and time zones to coordinate data sets -- IoT and GPS traces, telemetry, event logs, store/asset locations -- without leaving the database.\n\nUnder the hood, place lookups are powered by [`reverse_geocoder`](https://github.com/thampiman/reverse-geocoder) ([PyPI](https://pypi.org/project/reverse_geocoder/)), which queries a [GeoNames](https://www.geonames.org/) cities KD-tree to find the nearest populated place in sub-millisecond time. Timezone resolution uses [`timezonefinder`](https://github.com/jannikmi/timezonefinder) ([documentation](https://timezonefinder.readthedocs.io/)), which maps a point to its [IANA time-zone](https://www.iana.org/time-zones) polygon offline. Distances are computed with the great-circle [haversine formula](https://en.wikipedia.org/wiki/Haversine_formula). Every function is total and NULL-safe: a NULL or out-of-range coordinate yields `NULL` rather than an error, so the functions are safe to drop into large batch queries.\n\n## What you can do\n\nThe worker groups its capabilities into three areas:\n\n- **Place lookup** -- resolve a coordinate to the nearest city, its ISO-3166 country, and first- and second-level administrative regions (state/region and county/district), either one attribute at a time or as a single combined `STRUCT` record for the whole place.\n- **Timezone** -- map a coordinate to its IANA timezone name (e.g. `America/New_York`) for localizing timestamps.\n- **Distance** -- measure the great-circle (haversine) distance in kilometers between two coordinates.\n\nEvery operation is a per-row scalar you can use inline in any projection or predicate, so enriching a whole coordinate column -- or filtering it by proximity -- is a single `SELECT` with no joins, staging tables, or API round-trips.\n\nBacked by GeoNames cities (`reverse_geocoder`, LGPL-3.0, used as an unmodified dependency) and offline IANA timezone polygons (`timezonefinder`, MIT).",
+        "vgi.keywords": "[\"geocode\", \"reverse geocode\", \"geocoding\", \"lat lon\", \"latitude longitude\", \"coordinates\", \"city\", \"country\", \"country code\", \"state\", \"region\", \"county\", \"admin\", \"timezone\", \"iana timezone\", \"haversine\", \"distance\", \"offline\", \"geonames\"]",
+        "vgi.license": "MIT",
+        "vgi.subtitle": "Turn latitude/longitude into city, country, admin region and timezone offline, plus haversine distance.",
+        "vgi.support_contact": "https://github.com/Query-farm/vgi-geocode/issues",
+        "vgi.support_policy_url": "https://github.com/Query-farm/vgi-geocode/blob/main/README.md",
+        "vgi.title": "Offline Reverse Geocoding"
+      },
+      false,
+      "vgi",
+      false,
+      false,
+      null,
+      {
+        "location": "uvx --python 3.13 --from git+https://github.com/Query-farm/vgi-geocode@v0.4.0 vgi-geocode-worker"
+      }
+    ]
+  ]
+}

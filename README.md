@@ -234,4 +234,4 @@ Copyright 2026 Query Farm LLC - https://query.farm
 
 ## Executed notebooks
 
-See the [selected-place distance walkthrough](notebooks/README.md) for an offline SQL audit of reverse-geocoding results and a focused proximity-screen experiment.
+See the [selected-place distance and label walkthrough](notebooks/README.md) for an offline SQL audit covering all seven functions, three SVG figures, a proximity-screen experiment and an Open in Colab link.

@@ -1,0 +1,15 @@
+{
+  "release_revision": "5142f5245558c20d852c2d35a6fd99b21c709242",
+  "current_revision": "b4c0936bfa17f4e0014b393b8316a53f3251295c",
+  "reviewed_at": "2026-11-15T00:25:36.264416+00:00",
+  "reviewer": "Codex /root",
+  "registration": "SCALAR_FUNCTIONS contains seven positional scalar classes, included unchanged in the sole main schema. No table, view, COPY, write or authenticated APIs. Each class has one signature and no overloads.",
+  "compatibility": "Full delta adds composed example SQL and schema/agent metadata only. Lookup implementation, scalar compute methods, signatures, return types, registration and dependency declarations unchanged. Exact runtime evidence belongs to released v0.4.0; current interface compatibility reviewed separately.",
+  "source_sha256": {
+    "vgi_geocode/__init__.py": "6e64afaf8c03f5120cc7f930441bd65d6ca3de7c4bdff7b7d889f97a6d65e5dc",
+    "vgi_geocode/geocoder.py": "a7d8d8fa8529233df5ec13872ac1ae6a35f07a676e588a62ce80cd75be7a251f",
+    "vgi_geocode/scalars.py": "d56b190d24f7ddf2e13fb777a31c57a00754a6e44f5d9e9b509f7798efc23bd9",
+    "vgi_geocode/schema_utils.py": "d7f1365a35a6fae8d9436cf910df20808c96fedf879b98aafd4feb6ae12f5d11",
+    "vgi_geocode/worker.py": "e799f81a6b480830738b1665e9c057b4535929b928571b977f5318ce54491d8d"
+  }
+}

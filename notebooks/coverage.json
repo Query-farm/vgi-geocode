@@ -1,0 +1,289 @@
+{
+  "schema_version": 1,
+  "catalogs": {
+    "released": {
+      "path": "coverage/catalog-release.json",
+      "sha256": "4411b0c3315605982d64f33cd1b9ea935d3f344f3d400ae9278f6b3a1435e894",
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root",
+        "reviewed_at": "2026-11-15T00:27:21.157037+00:00",
+        "catalog_sha256": "4411b0c3315605982d64f33cd1b9ea935d3f344f3d400ae9278f6b3a1435e894",
+        "notes": "Complete sole main schema with seven positional scalars; no overloads, tables, views, COPY, writes or authentication. Actual release runtime exports reconciled. Current registration/implementation/source dependency delta reviewed; additions are examples and agent metadata only. No exact current runtime execution claimed."
+      }
+    },
+    "current": {
+      "path": "coverage/catalog-current.json",
+      "sha256": "be81e9bb65190835df7f82b9ef6d415afc3773fd87621bb49defdb719e523ed2",
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root",
+        "reviewed_at": "2026-11-15T00:27:21.157037+00:00",
+        "catalog_sha256": "be81e9bb65190835df7f82b9ef6d415afc3773fd87621bb49defdb719e523ed2",
+        "notes": "Complete sole main schema with seven positional scalars; no overloads, tables, views, COPY, writes or authentication. Actual release runtime exports reconciled. Current registration/implementation/source dependency delta reviewed; additions are examples and agent metadata only. No exact current runtime execution claimed."
+      }
+    }
+  },
+  "notebooks": [
+    {
+      "path": "01_audit_selected_place_distance.ipynb",
+      "sha256": "a42040075284c4358a4448f6f50df7aa7a829702aec8bf7cf6e8436e62f6f5ee",
+      "execution": {
+        "path": "coverage/run-01.json",
+        "sha256": "a1c5515ea902a2712cebc17da3d46233322363c68c4740dd6211e1e45882bb14"
+      }
+    }
+  ],
+  "examples": [
+    {
+      "object": {
+        "schema": "main",
+        "name": "reverse_geocode"
+      },
+      "notebook": "01_audit_selected_place_distance.ipynb",
+      "sql": [
+        {
+          "cell": "c3915a5f",
+          "reference": "geocode.main.reverse_geocode"
+        }
+      ],
+      "narrative_cells": [
+        "eeebbc09",
+        "5345351d"
+      ],
+      "result_cells": [
+        "232f3b7c",
+        "9a779867"
+      ],
+      "interpretation_cells": [
+        "232f3b7c",
+        "35a070ab"
+      ],
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root",
+        "reviewed_at": "2026-11-15T00:27:21.157037+00:00",
+        "notebook_sha256": "a42040075284c4358a4448f6f50df7aa7a829702aec8bf7cf6e8436e62f6f5ee",
+        "catalog_sha256": [
+          "4411b0c3315605982d64f33cd1b9ea935d3f344f3d400ae9278f6b3a1435e894",
+          "be81e9bb65190835df7f82b9ef6d415afc3773fd87621bb49defdb719e523ed2"
+        ],
+        "purpose": "Resolve selected places and their coordinates before measuring separation; retain invalid and missing input rows.",
+        "finding": "Seven of nine inputs return places. Arctic point selects Olonkinbyen about1574km away; this is selected-record distance, not a nearest-great-circle guarantee or territorial containment."
+      }
+    },
+    {
+      "object": {
+        "schema": "main",
+        "name": "distance_km"
+      },
+      "notebook": "01_audit_selected_place_distance.ipynb",
+      "sql": [
+        {
+          "cell": "c3915a5f",
+          "reference": "geocode.main.distance_km"
+        }
+      ],
+      "narrative_cells": [
+        "5345351d",
+        "d2ff369d"
+      ],
+      "result_cells": [
+        "232f3b7c",
+        "9a779867",
+        "15300672"
+      ],
+      "interpretation_cells": [
+        "232f3b7c",
+        "35a070ab",
+        "c3111616"
+      ],
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root",
+        "reviewed_at": "2026-11-15T00:27:21.157037+00:00",
+        "notebook_sha256": "a42040075284c4358a4448f6f50df7aa7a829702aec8bf7cf6e8436e62f6f5ee",
+        "catalog_sha256": [
+          "4411b0c3315605982d64f33cd1b9ea935d3f344f3d400ae9278f6b3a1435e894",
+          "be81e9bb65190835df7f82b9ef6d415afc3773fd87621bb49defdb719e523ed2"
+        ],
+        "purpose": "Measure selected-place separation and audit haversine arithmetic before sweeping an inclusive radius.",
+        "finding": "All nine SQL invariants pass;50km selects3/7 resolved points,500km selects6/7. Names, distances and other source fields remain unchanged; invalid/missing are never zero distances."
+      }
+    },
+    {
+      "object": {
+        "schema": "main",
+        "name": "timezone"
+      },
+      "notebook": "01_audit_selected_place_distance.ipynb",
+      "sql": [
+        {
+          "cell": "c3915a5f",
+          "reference": "geocode.main.timezone"
+        }
+      ],
+      "narrative_cells": [
+        "7b242854"
+      ],
+      "result_cells": [
+        "232f3b7c"
+      ],
+      "interpretation_cells": [
+        "232f3b7c"
+      ],
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root",
+        "reviewed_at": "2026-11-15T00:27:21.157037+00:00",
+        "notebook_sha256": "a42040075284c4358a4448f6f50df7aa7a829702aec8bf7cf6e8436e62f6f5ee",
+        "catalog_sha256": [
+          "4411b0c3315605982d64f33cd1b9ea935d3f344f3d400ae9278f6b3a1435e894",
+          "be81e9bb65190835df7f82b9ef6d415afc3773fd87621bb49defdb719e523ed2"
+        ],
+        "purpose": "Compare an independent timezone polygon lookup at the input with the selected-place country.",
+        "finding": "Seven valid inputs return timezones including ocean Etc/GMT names alongside land-place country codes. Different geographic objects are described, with invalid/missing inputs still NULL."
+      }
+    },
+    {
+      "object": {
+        "schema": "main",
+        "name": "nearest_city"
+      },
+      "notebook": "01_audit_selected_place_distance.ipynb",
+      "sql": [
+        {
+          "cell": "c3915a5f",
+          "reference": "geocode.main.nearest_city"
+        }
+      ],
+      "narrative_cells": [
+        "label-story"
+      ],
+      "result_cells": [
+        "label-finding",
+        "label-chart"
+      ],
+      "interpretation_cells": [
+        "label-finding"
+      ],
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root",
+        "reviewed_at": "2026-11-15T00:27:21.157037+00:00",
+        "notebook_sha256": "a42040075284c4358a4448f6f50df7aa7a829702aec8bf7cf6e8436e62f6f5ee",
+        "catalog_sha256": [
+          "4411b0c3315605982d64f33cd1b9ea935d3f344f3d400ae9278f6b3a1435e894",
+          "be81e9bb65190835df7f82b9ef6d415afc3773fd87621bb49defdb719e523ed2"
+        ],
+        "purpose": "Compare the individual city label with the combined record and preserve field completeness.",
+        "finding": "All9rows agree after empty-string normalization;7nonmissing city labels. Seven matched records include four without a second-level administrative label. Access-form agreement is not independent geographic confirmation."
+      }
+    },
+    {
+      "object": {
+        "schema": "main",
+        "name": "country_code"
+      },
+      "notebook": "01_audit_selected_place_distance.ipynb",
+      "sql": [
+        {
+          "cell": "c3915a5f",
+          "reference": "geocode.main.country_code"
+        }
+      ],
+      "narrative_cells": [
+        "label-story"
+      ],
+      "result_cells": [
+        "label-finding",
+        "label-chart"
+      ],
+      "interpretation_cells": [
+        "label-finding"
+      ],
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root",
+        "reviewed_at": "2026-11-15T00:27:21.157037+00:00",
+        "notebook_sha256": "a42040075284c4358a4448f6f50df7aa7a829702aec8bf7cf6e8436e62f6f5ee",
+        "catalog_sha256": [
+          "4411b0c3315605982d64f33cd1b9ea935d3f344f3d400ae9278f6b3a1435e894",
+          "be81e9bb65190835df7f82b9ef6d415afc3773fd87621bb49defdb719e523ed2"
+        ],
+        "purpose": "Compare the individual country label with the combined record and preserve field completeness.",
+        "finding": "All9rows agree after empty-string normalization;7nonmissing country labels. Seven matched records include four without a second-level administrative label. Access-form agreement is not independent geographic confirmation."
+      }
+    },
+    {
+      "object": {
+        "schema": "main",
+        "name": "admin1"
+      },
+      "notebook": "01_audit_selected_place_distance.ipynb",
+      "sql": [
+        {
+          "cell": "c3915a5f",
+          "reference": "geocode.main.admin1"
+        }
+      ],
+      "narrative_cells": [
+        "label-story"
+      ],
+      "result_cells": [
+        "label-finding",
+        "label-chart"
+      ],
+      "interpretation_cells": [
+        "label-finding"
+      ],
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root",
+        "reviewed_at": "2026-11-15T00:27:21.157037+00:00",
+        "notebook_sha256": "a42040075284c4358a4448f6f50df7aa7a829702aec8bf7cf6e8436e62f6f5ee",
+        "catalog_sha256": [
+          "4411b0c3315605982d64f33cd1b9ea935d3f344f3d400ae9278f6b3a1435e894",
+          "be81e9bb65190835df7f82b9ef6d415afc3773fd87621bb49defdb719e523ed2"
+        ],
+        "purpose": "Compare the individual first-level administrative label with the combined record and preserve field completeness.",
+        "finding": "All9rows agree after empty-string normalization;7nonmissing first-level administrative labels. Seven matched records include four without a second-level administrative label. Access-form agreement is not independent geographic confirmation."
+      }
+    },
+    {
+      "object": {
+        "schema": "main",
+        "name": "admin2"
+      },
+      "notebook": "01_audit_selected_place_distance.ipynb",
+      "sql": [
+        {
+          "cell": "c3915a5f",
+          "reference": "geocode.main.admin2"
+        }
+      ],
+      "narrative_cells": [
+        "label-story"
+      ],
+      "result_cells": [
+        "label-finding",
+        "label-chart"
+      ],
+      "interpretation_cells": [
+        "label-finding"
+      ],
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root",
+        "reviewed_at": "2026-11-15T00:27:21.157037+00:00",
+        "notebook_sha256": "a42040075284c4358a4448f6f50df7aa7a829702aec8bf7cf6e8436e62f6f5ee",
+        "catalog_sha256": [
+          "4411b0c3315605982d64f33cd1b9ea935d3f344f3d400ae9278f6b3a1435e894",
+          "be81e9bb65190835df7f82b9ef6d415afc3773fd87621bb49defdb719e523ed2"
+        ],
+        "purpose": "Compare the individual second-level administrative label with the combined record and preserve field completeness.",
+        "finding": "All9rows agree after empty-string normalization;3nonmissing second-level administrative labels. Seven matched records include four without a second-level administrative label. Access-form agreement is not independent geographic confirmation."
+      }
+    }
+  ]
+}

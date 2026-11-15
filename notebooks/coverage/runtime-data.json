@@ -1,0 +1,36 @@
+{
+  "worker_release": "v0.4.0",
+  "captured_at": "2026-11-15T00:24:09.484542+00:00",
+  "versions": {
+    "vgi-geocode": "0.4.0",
+    "vgi-python": "0.51.1",
+    "vgi-rpc": "0.53.1",
+    "pyarrow": "26.0.1",
+    "reverse-geocoder": "1.5.1",
+    "timezonefinder": "9.2.0",
+    "numpy": "2.5.4",
+    "scipy": "1.18.1"
+  },
+  "bundled_data": {
+    "reverse-geocoder": [
+      {
+        "path": "reverse_geocoder-1.5.1.dist-info/uv_build.json",
+        "bytes": 2,
+        "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      },
+      {
+        "path": "reverse_geocoder/rg_cities1000.csv",
+        "bytes": 7851524,
+        "sha256": "1de56dc32b0308c6094d5d833441c8ca25827f24e9a6a4cc144223ab5f9b65bf"
+      }
+    ],
+    "timezonefinder": [
+      {
+        "path": "timezonefinder-9.2.0.dist-info/uv_build.json",
+        "bytes": 2,
+        "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+      }
+    ]
+  },
+  "note": "Actual isolated uvx Git-tag environment used for publication; dependency ranges belong to the worker release and may resolve newer versions on a fresh install. Capture time is not dataset vintage."
+}

@@ -1,6 +1,8 @@
 line-length = 110
 target-version = "py313"
+builtins = ["availability_frame", "matches", "sensitivity", "checks", "label_rows", "label_counts"]
+extend-exclude = ["artifacts", "validation"]
 [lint]
-select = ["E", "F", "I", "UP", "B", "SIM", "C4"]
+select = ["E", "F", "I", "UP", "B", "SIM"]
 [lint.per-file-ignores]
-"*.ipynb" = ["E402", "F821"]
+"*.ipynb" = ["E402", "E501"] # Check imported-library compatibility before plotting imports

@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "repository": "Query-farm/vgi-geocode",
+  "revision": "5142f5245558c20d852c2d35a6fd99b21c709242",
+  "captured_at": "2026-11-15T00:25:36.264416+00:00",
+  "default_schema": "main",
+  "scope": "all_public_functions_and_tables",
+  "complete": true,
+  "objects": [
+    {
+      "schema": "main",
+      "name": "admin1",
+      "kind": "function",
+      "signatures": [
+        "scalar(DOUBLE, DOUBLE) -> VARCHAR"
+      ],
+      "authentication": "none",
+      "access": "read"
+    },
+    {
+      "schema": "main",
+      "name": "admin2",
+      "kind": "function",
+      "signatures": [
+        "scalar(DOUBLE, DOUBLE) -> VARCHAR"
+      ],
+      "authentication": "none",
+      "access": "read"
+    },
+    {
+      "schema": "main",
+      "name": "country_code",
+      "kind": "function",
+      "signatures": [
+        "scalar(DOUBLE, DOUBLE) -> VARCHAR"
+      ],
+      "authentication": "none",
+      "access": "read"
+    },
+    {
+      "schema": "main",
+      "name": "distance_km",
+      "kind": "function",
+      "signatures": [
+        "scalar(DOUBLE, DOUBLE, DOUBLE, DOUBLE) -> DOUBLE"
+      ],
+      "authentication": "none",
+      "access": "read"
+    },
+    {
+      "schema": "main",
+      "name": "nearest_city",
+      "kind": "function",
+      "signatures": [
+        "scalar(DOUBLE, DOUBLE) -> VARCHAR"
+      ],
+      "authentication": "none",
+      "access": "read"
+    },
+    {
+      "schema": "main",
+      "name": "reverse_geocode",
+      "kind": "function",
+      "signatures": [
+        "scalar(DOUBLE, DOUBLE) -> STRUCT(city VARCHAR, admin1 VARCHAR, admin2 VARCHAR, country_code VARCHAR, place_lat DOUBLE, place_lon DOUBLE)"
+      ],
+      "authentication": "none",
+      "access": "read"
+    },
+    {
+      "schema": "main",
+      "name": "timezone",
+      "kind": "function",
+      "signatures": [
+        "scalar(DOUBLE, DOUBLE) -> VARCHAR"
+      ],
+      "authentication": "none",
+      "access": "read"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "coverage/functions.json",
+      "sha256": "14cac8bb0769a35ec0a0906b90d85412b85464d262ccd401fcd66033dd05e9a9",
+      "description": "Complete actual public v0.4.0 Git-tag runtime export; no omitted functions, physical tables or views"
+    },
+    {
+      "path": "coverage/tables.json",
+      "sha256": "e9f521dc80e9cf9f81f8b03d4c86781d7d28d05cbf4152f204327216e391533a",
+      "description": "Complete actual public v0.4.0 Git-tag runtime export; no omitted functions, physical tables or views"
+    },
+    {
+      "path": "coverage/views.json",
+      "sha256": "79108e8df6370bc99c965fa11402a02e92b09bdfb308e5f7b2889f75537025cc",
+      "description": "Complete actual public v0.4.0 Git-tag runtime export; no omitted functions, physical tables or views"
+    },
+    {
+      "path": "coverage/catalog-metadata.json",
+      "sha256": "9c162acc7734753a14979134bc93eea427ef83cc723c90a0e4b9d8cf57063d20",
+      "description": "Complete actual public v0.4.0 Git-tag runtime export; no omitted functions, physical tables or views"
+    }
+  ]
+}

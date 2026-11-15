@@ -1,0 +1,523 @@
+{
+  "schema_version": 1,
+  "status": "met",
+  "meets_target": true,
+  "catalogs": {
+    "released": {
+      "catalog_status": "verified",
+      "revision": "5142f5245558c20d852c2d35a6fd99b21c709242",
+      "catalog_sha256": "4411b0c3315605982d64f33cd1b9ea935d3f344f3d400ae9278f6b3a1435e894",
+      "collection_reconciled": true,
+      "denominator": 7,
+      "observed_objects": 7,
+      "required": 7,
+      "verified_count": 7,
+      "candidate_count": 0,
+      "fraction": 1.0,
+      "meets_target": true,
+      "exact_runtime_count": 7,
+      "runtime_revisions": [
+        "5142f5245558c20d852c2d35a6fd99b21c709242"
+      ],
+      "covered": [
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "admin1"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "admin2"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "country_code"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "distance_km"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "nearest_city"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "reverse_geocode"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "timezone"
+        }
+      ],
+      "uncovered": [],
+      "objects": [
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "admin1",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "scalar(DOUBLE, DOUBLE) -> VARCHAR"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "admin2",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "scalar(DOUBLE, DOUBLE) -> VARCHAR"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "country_code",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "scalar(DOUBLE, DOUBLE) -> VARCHAR"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "distance_km",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "scalar(DOUBLE, DOUBLE, DOUBLE, DOUBLE) -> DOUBLE"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "nearest_city",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "scalar(DOUBLE, DOUBLE) -> VARCHAR"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "reverse_geocode",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "scalar(DOUBLE, DOUBLE) -> STRUCT(city VARCHAR, admin1 VARCHAR, admin2 VARCHAR, country_code VARCHAR, place_lat DOUBLE, place_lon DOUBLE)"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "timezone",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "scalar(DOUBLE, DOUBLE) -> VARCHAR"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        }
+      ],
+      "issues": []
+    },
+    "current": {
+      "catalog_status": "verified",
+      "revision": "b4c0936bfa17f4e0014b393b8316a53f3251295c",
+      "catalog_sha256": "be81e9bb65190835df7f82b9ef6d415afc3773fd87621bb49defdb719e523ed2",
+      "collection_reconciled": false,
+      "denominator": 7,
+      "observed_objects": 7,
+      "required": 7,
+      "verified_count": 7,
+      "candidate_count": 0,
+      "fraction": 1.0,
+      "meets_target": true,
+      "exact_runtime_count": 0,
+      "runtime_revisions": [
+        "5142f5245558c20d852c2d35a6fd99b21c709242"
+      ],
+      "covered": [
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "admin1"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "admin2"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "country_code"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "distance_km"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "nearest_city"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "reverse_geocode"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "timezone"
+        }
+      ],
+      "uncovered": [],
+      "objects": [
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "admin1",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "scalar(DOUBLE, DOUBLE) -> VARCHAR"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "admin2",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "scalar(DOUBLE, DOUBLE) -> VARCHAR"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "country_code",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "scalar(DOUBLE, DOUBLE) -> VARCHAR"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "distance_km",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "scalar(DOUBLE, DOUBLE, DOUBLE, DOUBLE) -> DOUBLE"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "nearest_city",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "scalar(DOUBLE, DOUBLE) -> VARCHAR"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "reverse_geocode",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "scalar(DOUBLE, DOUBLE) -> STRUCT(city VARCHAR, admin1 VARCHAR, admin2 VARCHAR, country_code VARCHAR, place_lat DOUBLE, place_lon DOUBLE)"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "timezone",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "scalar(DOUBLE, DOUBLE) -> VARCHAR"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        }
+      ],
+      "issues": []
+    }
+  },
+  "interface_drift": {
+    "known": true,
+    "current_only": [],
+    "released_only": [],
+    "changed": []
+  },
+  "notebooks": {
+    "01_audit_selected_place_distance.ipynb": {
+      "verified": true,
+      "issues": []
+    }
+  },
+  "examples": [
+    {
+      "status": "verified",
+      "issues": [],
+      "verified_catalogs": [
+        "released",
+        "current"
+      ],
+      "object": {
+        "schema": [
+          "main"
+        ],
+        "name": "reverse_geocode"
+      },
+      "notebook": "01_audit_selected_place_distance.ipynb",
+      "runtime_revision": "5142f5245558c20d852c2d35a6fd99b21c709242",
+      "runtime_catalog_sha256": "4411b0c3315605982d64f33cd1b9ea935d3f344f3d400ae9278f6b3a1435e894"
+    },
+    {
+      "status": "verified",
+      "issues": [],
+      "verified_catalogs": [
+        "released",
+        "current"
+      ],
+      "object": {
+        "schema": [
+          "main"
+        ],
+        "name": "distance_km"
+      },
+      "notebook": "01_audit_selected_place_distance.ipynb",
+      "runtime_revision": "5142f5245558c20d852c2d35a6fd99b21c709242",
+      "runtime_catalog_sha256": "4411b0c3315605982d64f33cd1b9ea935d3f344f3d400ae9278f6b3a1435e894"
+    },
+    {
+      "status": "verified",
+      "issues": [],
+      "verified_catalogs": [
+        "released",
+        "current"
+      ],
+      "object": {
+        "schema": [
+          "main"
+        ],
+        "name": "timezone"
+      },
+      "notebook": "01_audit_selected_place_distance.ipynb",
+      "runtime_revision": "5142f5245558c20d852c2d35a6fd99b21c709242",
+      "runtime_catalog_sha256": "4411b0c3315605982d64f33cd1b9ea935d3f344f3d400ae9278f6b3a1435e894"
+    },
+    {
+      "status": "verified",
+      "issues": [],
+      "verified_catalogs": [
+        "released",
+        "current"
+      ],
+      "object": {
+        "schema": [
+          "main"
+        ],
+        "name": "nearest_city"
+      },
+      "notebook": "01_audit_selected_place_distance.ipynb",
+      "runtime_revision": "5142f5245558c20d852c2d35a6fd99b21c709242",
+      "runtime_catalog_sha256": "4411b0c3315605982d64f33cd1b9ea935d3f344f3d400ae9278f6b3a1435e894"
+    },
+    {
+      "status": "verified",
+      "issues": [],
+      "verified_catalogs": [
+        "released",
+        "current"
+      ],
+      "object": {
+        "schema": [
+          "main"
+        ],
+        "name": "country_code"
+      },
+      "notebook": "01_audit_selected_place_distance.ipynb",
+      "runtime_revision": "5142f5245558c20d852c2d35a6fd99b21c709242",
+      "runtime_catalog_sha256": "4411b0c3315605982d64f33cd1b9ea935d3f344f3d400ae9278f6b3a1435e894"
+    },
+    {
+      "status": "verified",
+      "issues": [],
+      "verified_catalogs": [
+        "released",
+        "current"
+      ],
+      "object": {
+        "schema": [
+          "main"
+        ],
+        "name": "admin1"
+      },
+      "notebook": "01_audit_selected_place_distance.ipynb",
+      "runtime_revision": "5142f5245558c20d852c2d35a6fd99b21c709242",
+      "runtime_catalog_sha256": "4411b0c3315605982d64f33cd1b9ea935d3f344f3d400ae9278f6b3a1435e894"
+    },
+    {
+      "status": "verified",
+      "issues": [],
+      "verified_catalogs": [
+        "released",
+        "current"
+      ],
+      "object": {
+        "schema": [
+          "main"
+        ],
+        "name": "admin2"
+      },
+      "notebook": "01_audit_selected_place_distance.ipynb",
+      "runtime_revision": "5142f5245558c20d852c2d35a6fd99b21c709242",
+      "runtime_catalog_sha256": "4411b0c3315605982d64f33cd1b9ea935d3f344f3d400ae9278f6b3a1435e894"
+    }
+  ],
+  "issues": []
+}
