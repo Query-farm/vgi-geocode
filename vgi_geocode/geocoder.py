@@ -48,7 +48,7 @@ def _valid_coord(lat: float | None, lon: float | None) -> bool:
     try:
         flat = float(lat)
         flon = float(lon)
-    except (TypeError, ValueError):
+    except TypeError, ValueError:
         return False
     if math.isnan(flat) or math.isnan(flon) or math.isinf(flat) or math.isinf(flon):
         return False
@@ -125,7 +125,7 @@ def reverse_geocode_batch(
         try:
             place_lat = float(res["lat"])
             place_lon = float(res["lon"])
-        except (TypeError, ValueError, KeyError):
+        except TypeError, ValueError, KeyError:
             place_lat = float("nan")
             place_lon = float("nan")
         out[idx] = Place(

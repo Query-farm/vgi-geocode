@@ -105,7 +105,7 @@ make test                     # both
 uv run ruff check . && uv run mypy vgi_geocode/
 ```
 
-`make test-sql` sets `VGI_GEOCODE_WORKER="uv run --python 3.13
+`make test-sql` sets `VGI_GEOCODE_WORKER="uv run --python 3.14
 geocode_worker.py"`, puts `~/.local/bin` on PATH, and runs `haybarn-unittest
 --test-dir . "test/sql/*"`. Install the runner once with
 `uv tool install --prerelease allow 'haybarn-unittest>=2.0.0rc11,<2.1'`. CI (`.github/workflows/ci.yml`) runs unit +
