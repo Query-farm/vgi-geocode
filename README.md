@@ -21,7 +21,7 @@ timezone polygons; MIT).
 
 ```sql
 INSTALL vgi FROM community; LOAD vgi;
-ATTACH 'geocode' (TYPE vgi, LOCATION 'uvx --from git+https://github.com/Query-farm/vgi-geocode@v0.4.3 vgi-geocode-worker');
+ATTACH 'geocode' (TYPE vgi, LOCATION 'uvx --from git+https://github.com/Query-farm/vgi-geocode@v0.5.0 vgi-geocode-worker');
 
 SELECT geocode.nearest_city(40.7128, -74.0060);          -- 'New York City'
 SELECT geocode.country_code(48.8566, 2.3522);            -- 'FR'
@@ -39,6 +39,8 @@ same answer. The two spatial indexes are built **once at startup** (warmed at
 worker spawn) and cached for the process lifetime, so the first query never pays
 the index-build cost.
 
+vgi-geocode 0.5.0 speaks VGI protocol 3.4, so it needs Haybarn 2.0.1 or newer (Haybarn 2.0.0 loads a 3.3 `vgi` extension that cannot attach it).
+
 ## Quick start
 
 The worker isn't on PyPI; [uv](https://docs.astral.sh/uv/) runs it straight from a tagged release on GitHub. `uvx` builds an isolated environment on the first ATTACH and reuses it afterwards:
@@ -47,7 +49,7 @@ The worker isn't on PyPI; [uv](https://docs.astral.sh/uv/) runs it straight from
 INSTALL vgi FROM community;
 LOAD vgi;
 
-ATTACH 'geocode' AS geocode (TYPE vgi, LOCATION 'uvx --from git+https://github.com/Query-farm/vgi-geocode@v0.4.3 vgi-geocode-worker');
+ATTACH 'geocode' AS geocode (TYPE vgi, LOCATION 'uvx --from git+https://github.com/Query-farm/vgi-geocode@v0.5.0 vgi-geocode-worker');
 
 -- Enrich a set of coordinates with nearest city and ISO-3166 country code.
 SELECT lat, lon, geocode.main.nearest_city(lat, lon) AS city, geocode.main.country_code(lat, lon) AS country FROM (VALUES (40.7128, -74.0060), (48.8566, 2.3522), (35.6762, 139.6503)) AS t(lat, lon);
@@ -204,7 +206,7 @@ poles/antimeridian boundaries, out-of-range and NULL edges, ocean points);
 exactly as DuckDB would after `ATTACH`. The `test/sql/*.test` files are DuckDB
 sqllogictest cases run by
 [`haybarn-unittest`](https://pypi.org/project/haybarn-unittest/)
-(`uv tool install --prerelease allow 'haybarn-unittest>=2.0.0rc11,<2.1'`) against a real `ATTACH` + `SELECT`.
+(`uv tool install --prerelease allow 'haybarn-unittest>=2.0.1rc3,<2.1'`) against a real `ATTACH` + `SELECT`.
 
 ## Layout
 
